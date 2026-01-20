@@ -4,10 +4,11 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Using '/' is safer for Netlify. './' is usually for GitHub Pages.
-  base: '/', 
+  // Using './' ensures that assets are resolved correctly regardless of subfolder or domain structure.
+  base: './', 
   build: {
     outDir: 'dist',
+    assetsDir: 'assets',
     sourcemap: false
   },
   server: {

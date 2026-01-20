@@ -3,13 +3,14 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>뻐꾸기인테리어 | Cuckoo Interior</title>
-    <!-- Tailwind CSS via CDN is fine for styling, but React code needs building -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Spline Viewer is much faster than iframe -->
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.48/build/spline-viewer.js"></script>
     <style>
       body {
         font-family: 'Noto Sans KR', sans-serif;
@@ -17,11 +18,11 @@
         color: #1a1a1a;
         margin: 0;
         overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
       }
       .font-serif {
         font-family: 'Playfair Display', serif;
       }
-      /* Custom scrollbar */
       ::-webkit-scrollbar {
         width: 4px;
       }
@@ -32,16 +33,17 @@
         background: #e2e2e2;
         border-radius: 10px;
       }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #ccc;
-      }
-      /* Fade in animation for content */
       .fade-in {
-        animation: fadeIn 1.2s ease-out forwards;
+        animation: fadeIn 1s ease-out forwards;
       }
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      /* Prevent mobile pull-to-refresh for the 3D home page */
+      .no-scroll {
+        overflow: hidden;
+        overscroll-behavior: none;
       }
     </style>
   <script type="importmap">
@@ -59,7 +61,6 @@
 </head>
   <body>
     <div id="root"></div>
-    <!-- This is the entry point. Vite will transpile index.tsx to index.js during the build process. -->
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
