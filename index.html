@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <!-- Spline Viewer for high-performance 3D -->
+    <!-- Spline Viewer: External script for high-performance 3D -->
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.48/build/spline-viewer.js"></script>
     <style>
       body {
@@ -34,17 +34,14 @@
         background: #e2e2e2;
         border-radius: 10px;
       }
-      .fade-in {
-        animation: fadeIn 1s ease-out forwards;
-      }
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
-      /* Prevent mobile pull-to-refresh for the 3D home page */
       .no-scroll {
         overflow: hidden;
         overscroll-behavior: none;
+      }
+      /* Custom styles for select/input to maintain minimalist feel */
+      input, textarea, select {
+        appearance: none;
+        border-radius: 0;
       }
     </style>
   <script type="importmap">

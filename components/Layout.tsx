@@ -42,9 +42,9 @@ const Layout: React.FC = () => {
           © 2024 CUCKOO INTERIOR DESIGN STUDIO. ALL RIGHTS RESERVED.
         </div>
         <div className="flex gap-6 uppercase">
-          <a href="#" className="hover:text-black transition-colors">Instagram</a>
-          <a href="#" className="hover:text-black transition-colors">Behance</a>
-          <a href="#" className="hover:text-black transition-colors">YouTube</a>
+          <a href="https://www.instagram.com/bbeoggugi_official/" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">Instagram</a>
+          <a href="https://blog.naver.com/lali8122" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">Blog</a>
+          <a href="https://www.youtube.com/@bbeoggugi_homes" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">YouTube</a>
         </div>
       </footer>
     </div>
