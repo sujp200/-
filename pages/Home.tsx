@@ -2,14 +2,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Fix for spline-viewer TypeScript error: Define custom element in global JSX namespace
+// Fix for spline-viewer TypeScript error: Define custom element in both global JSX and React.JSX namespaces.
+// This ensures the element is recognized regardless of the specific TypeScript or React configuration.
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      'spline-viewer': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
-        url?: string;
-        onLoad?: () => void;
-      }, HTMLElement>;
+      'spline-viewer': any;
+    }
+  }
+  namespace React {
+    namespace JSX {
+      interface IntrinsicElements {
+        'spline-viewer': any;
+      }
     }
   }
 }
@@ -19,6 +24,16 @@ const Home: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    // Add Spline viewer script if not already present. This is essential for the <spline-viewer> web component to function.
+    const scriptId = 'spline-viewer-script';
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.type = 'module';
+      script.src = 'https://unpkg.com/@splinetool/viewer@1.0.28/build/spline-viewer.js';
+      document.head.appendChild(script);
+    }
+
     document.body.classList.add('no-scroll');
     return () => document.body.classList.remove('no-scroll');
   }, []);
