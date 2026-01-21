@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { team } from '../data';
+import { team, partners } from '../data';
 
 const About: React.FC = () => {
   return (
-    <div className="px-8 max-w-[1920px] mx-auto">
+    <div className="px-8 max-w-[1920px] mx-auto overflow-hidden">
       {/* Studio Philosophy Section */}
       <section className="flex flex-col lg:flex-row gap-20 mb-40 items-center lg:items-start">
         <div className="lg:w-1/2">
@@ -18,7 +18,6 @@ const About: React.FC = () => {
         </div>
         <div className="lg:w-1/2">
           <div className="mb-12">
-            {/* Using a specific font weight and family to emulate OmniGothic */}
             <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight text-gray-900" style={{ fontFamily: '"Pretendard", "OmniGothic", "Noto Sans KR", sans-serif' }}>
               뻐꾸기인테리어
             </h2>
@@ -50,9 +49,9 @@ const About: React.FC = () => {
       </section>
 
       {/* Team Section */}
-      <section className="pb-40">
+      <section className="mb-40">
         <div className="flex flex-col items-center mb-24">
-            <h3 className="text-[10px] tracking-[0.6em] mb-4 uppercase font-bold text-gray-400">Collaborators</h3>
+            <h3 className="text-[12px] tracking-[0.6em] mb-4 uppercase font-bold text-black">TEAM</h3>
             <div className="w-10 h-[1px] bg-gray-200"></div>
         </div>
         
@@ -70,6 +69,29 @@ const About: React.FC = () => {
               <p className="text-[10px] text-gray-400 uppercase tracking-widest">{member.role}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Partner Section (Scrolling Ticker) */}
+      <section className="pb-40">
+        <div className="flex flex-col items-center mb-16">
+            <h3 className="text-[10px] tracking-[0.6em] mb-4 uppercase font-bold text-gray-400">PARTNERS</h3>
+            <div className="w-10 h-[1px] bg-gray-100"></div>
+        </div>
+        
+        <div className="relative w-full overflow-hidden py-10">
+          <div className="animate-ticker flex">
+            {/* Repeat the list multiple times for infinite scroll feel */}
+            {[...partners, ...partners, ...partners, ...partners].map((partner, idx) => (
+              <div key={idx} className="flex-shrink-0 px-12 md:px-20">
+                <img 
+                  src={partner.logo} 
+                  alt={partner.name} 
+                  className="h-10 md:h-12 w-auto object-contain grayscale opacity-30 hover:opacity-100 hover:grayscale-0 transition-all duration-500"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>

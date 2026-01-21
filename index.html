@@ -36,10 +36,23 @@
         overflow: hidden;
         overscroll-behavior: none;
       }
-      /* Custom styles for select/input to maintain minimalist feel */
       input, textarea, select {
         appearance: none;
         border-radius: 0;
+      }
+
+      /* Infinite Ticker Animation */
+      @keyframes ticker-scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+      .animate-ticker {
+        display: flex;
+        width: max-content;
+        animation: ticker-scroll 40s linear infinite;
+      }
+      .animate-ticker:hover {
+        animation-play-state: paused;
       }
     </style>
   <script type="importmap">

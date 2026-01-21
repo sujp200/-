@@ -1,18 +1,17 @@
 
 import { Project, TeamMember, Channel } from './types';
 
-// Curated Interior Image URLs for a high-end feel
 const interiorImages = [
-  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80", // Modern Living
-  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80", // Luxury Kitchen
-  "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=80", // Minimal Bedroom
-  "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80", // Designer Chair
-  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80", // Commercial Office
-  "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=80", // Boutique Restaurant
-  "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80", // Apartment Lobby
-  "https://images.unsplash.com/photo-1616489953149-80516597950c?auto=format&fit=crop&w=1200&q=80", // Modern Bathroom
-  "https://images.unsplash.com/photo-1505691722718-250393ec4154?auto=format&fit=crop&w=1200&q=80", // Penthouse View
-  "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1200&q=80"  // Pop-up store feel
+  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1616489953149-80516597950c?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1505691722718-250393ec4154?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1200&q=80"
 ];
 
 const generateDummyProjects = (count: number, startId: number): Project[] => {
@@ -28,8 +27,7 @@ const generateDummyProjects = (count: number, startId: number): Project[] => {
   for (let i = 0; i < count; i++) {
     const base = baseProjects[i % baseProjects.length];
     const id = startId + i;
-    // Generate 20-30 images for each dummy project to test the new grid
-    const gallery = Array.from({ length: 24 }, (_, idx) => interiorImages[(id + idx) % interiorImages.length]);
+    const gallery = Array.from({ length: 30 }, (_, idx) => interiorImages[(id + idx) % interiorImages.length]);
     
     dummyData.push({
       id: `project-${id}`,
@@ -59,7 +57,7 @@ export const projects: Project[] = [
     title: '교촌필방 오마카세 묵암',
     titleEn: 'KYOCHON PILBANG FINE DINING | MUKAM',
     mainImage: 'https://images.unsplash.com/photo-1550966842-28c199833749?auto=format&fit=crop&w=1200&q=80',
-    images: Array.from({ length: 25 }, (_, i) => interiorImages[i % interiorImages.length]),
+    images: Array.from({ length: 30 }, (_, i) => interiorImages[i % interiorImages.length]),
     info: {
       design: 'BBEOGGUGI',
       construction: 'BBEOGGUGI',
@@ -72,7 +70,7 @@ export const projects: Project[] = [
     descriptionEn: 'An omakase space where tradition and modernity coexist. Mukam reflects the essence of Kyochon, featuring a sensible interior designed to connect with the MZ generation.',
     logos: []
   },
-  ...generateDummyProjects(15, 1)
+  ...generateDummyProjects(10, 1)
 ];
 
 export const team: TeamMember[] = [
@@ -82,26 +80,35 @@ export const team: TeamMember[] = [
   { id: '4', name: '서명원', role: 'PD', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&h=200&q=80' },
 ];
 
+export const partners = [
+  { name: 'SAMSUNG', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg' },
+  { name: 'LX HAUSYS', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/LG_Hausys_Logo.svg' },
+  { name: 'HANSSEM', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Hanssem_logo.png' },
+  { name: 'KCC', logo: 'https://upload.wikimedia.org/wikipedia/commons/b/be/KCC_logo.png' },
+  { name: 'DORMA', logo: 'https://upload.wikimedia.org/wikipedia/commons/5/5e/Dormakaba_logo.svg' },
+  { name: 'DAELIM', logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/Daelim_logo.png' }
+];
+
 export const channels: Channel[] = [
   { 
     id: 'insta', 
     name: 'Instagram', 
     icon: 'Instagram', 
     url: 'https://www.instagram.com/bbeoggugi_official/', 
-    thumbnail: 'https://images.unsplash.com/photo-1611262588024-d12430b98920?q=80&w=1000&auto=format&fit=crop' 
+    thumbnail: 'https://images.unsplash.com/photo-1611262588024-d12430b98920?q=80&w=1200&auto=format&fit=crop' // 3D Instagram Icon
   },
   { 
     id: 'blog', 
     name: 'Naver Blog', 
     icon: 'Book', 
     url: 'https://blog.naver.com/lali8122', 
-    thumbnail: 'https://images.unsplash.com/photo-1541140532154-b024d715b909?q=80&w=1000&auto=format&fit=crop' 
+    thumbnail: 'https://images.unsplash.com/photo-1614113484855-d36876d0d551?q=80&w=1200&auto=format&fit=crop' // Green 3D Modern Icon Render (Matches Naver Blog Green/White N vibe)
   },
   { 
     id: 'yt', 
     name: 'YouTube', 
     icon: 'Youtube', 
     url: 'https://www.youtube.com/@bbeoggugi_homes', 
-    thumbnail: 'https://images.unsplash.com/photo-1524508762098-fd966ffb6ef9?q=80&w=1000&auto=format&fit=crop' 
+    thumbnail: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1200&auto=format&fit=crop' // 3D YouTube Play Button Render
   },
 ];

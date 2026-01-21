@@ -22,9 +22,9 @@ const ProjectDetail: React.FC = () => {
   }
 
   return (
-    <div className="px-6 md:px-12 max-w-[1920px] mx-auto pb-40">
-      {/* 1. Header & Text Info (Now at the TOP) */}
-      <section className="mb-20">
+    <div className="px-6 md:px-12 max-w-[2400px] mx-auto pb-40">
+      {/* 1. Header & Text Info (At the Top) */}
+      <section className="mb-20 max-w-[1920px] mx-auto">
         <div className="flex flex-col lg:flex-row gap-12 lg:items-end mb-16">
           <div className="lg:w-2/3">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
@@ -71,18 +71,18 @@ const ProjectDetail: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. Compact Image Grid (3 columns for 20-30 images) */}
-      <section className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
+      {/* 2. Compact Image Grid (Dense 10 columns to fit ~30 images in 3 rows) */}
+      <section className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-1 md:gap-2">
         {project.images.map((img, idx) => (
           <div 
             key={idx} 
-            className="aspect-[4/5] overflow-hidden bg-gray-50 cursor-zoom-in"
+            className="aspect-square overflow-hidden bg-gray-50 cursor-zoom-in group"
             onClick={() => setSelectedImage(img)}
           >
             <img 
                 src={img} 
                 alt={`${project.title} gallery ${idx}`} 
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                 loading="lazy"
             />
           </div>
@@ -98,7 +98,7 @@ const ProjectDetail: React.FC = () => {
             <img 
                 src={selectedImage} 
                 alt="Enlarged view" 
-                className="max-w-full max-h-full object-contain shadow-2xl"
+                className="max-w-full max-h-full object-contain shadow-2xl animate-in fade-in zoom-in duration-300"
             />
             <button 
                 className="absolute top-8 right-8 text-black text-xs tracking-[0.3em] font-bold"
