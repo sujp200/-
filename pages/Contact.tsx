@@ -28,7 +28,7 @@ const Contact: React.FC = () => {
     <div className="px-8 max-w-[1400px] mx-auto py-10">
       <div className="mb-24 text-center">
         <h2 className="text-4xl font-serif mb-4">Project Inquiry</h2>
-        <p className="text-[10px] tracking-[0.6em] text-gray-400 uppercase font-bold">Start Your Journey with Cuckoo</p>
+        <p className="text-[10px] tracking-[0.6em] text-gray-400 uppercase font-bold">Start Your Journey with BBEOGGUGI</p>
       </div>
 
       <form className="max-w-4xl mx-auto space-y-16 pb-20" onSubmit={(e) => e.preventDefault()}>
@@ -210,7 +210,7 @@ const Contact: React.FC = () => {
       </form>
       
       <div className="mt-20 pt-10 border-t border-gray-50 text-center space-y-2 opacity-50">
-          <p className="text-[9px] tracking-[0.3em] text-gray-400">INFO@CUCKOOINTERIOR.COM</p>
+          <p className="text-[9px] tracking-[0.3em] text-gray-400">INFO@BBEOGGUGIINTERIOR.COM</p>
           <p className="text-[9px] tracking-[0.3em] text-gray-400">+82 2 1234 5678</p>
           <p className="text-[9px] tracking-[0.3em] text-gray-400">SEOUL, KOREA</p>
       </div>

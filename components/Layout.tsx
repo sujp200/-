@@ -15,8 +15,8 @@ const Layout: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <header className="fixed top-0 left-0 w-full z-50 mix-blend-difference px-6 md:px-8 py-6 md:py-10 flex justify-between items-start pointer-events-none">
-        <Link to="/" className="text-lg md:text-xl font-bold tracking-[0.2em] pointer-events-auto text-white">
-          뻐꾸기
+        <Link to="/" className="text-lg md:text-xl font-bold tracking-[0.2em] pointer-events-auto text-white uppercase">
+          BBEOGGUGI
         </Link>
         <nav className="flex flex-col gap-1.5 md:gap-2 items-end pointer-events-auto">
           {navItems.map((item) => (

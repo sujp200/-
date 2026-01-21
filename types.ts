@@ -12,6 +12,8 @@ export interface Project {
     year: string;
     site: string;
     usage: string;
+    area: string;
+    scope: string;
   };
   descriptionKr: string;
   descriptionEn: string;

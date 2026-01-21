@@ -4,55 +4,66 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>뻐꾸기인테리어 | Cuckoo Interior</title>
+    <title>BBEOGGUGI INTERIOR | 뻐꾸기인테리어</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --color-primary: #111111;
+        --color-secondary: #9A9A9A;
+      }
       body {
         font-family: 'Noto Sans KR', sans-serif;
-        background-color: #fdfcf8;
-        color: #1a1a1a;
+        background-color: #ffffff;
+        color: var(--color-primary);
         margin: 0;
         padding: 0;
         overflow-x: hidden;
         -webkit-font-smoothing: antialiased;
       }
+      /* Requested English Typography: Inter, Tracking +60, LH 135% */
+      .eng-text {
+        font-family: 'Inter', sans-serif;
+        letter-spacing: 0.06em;
+        line-height: 1.35;
+        color: var(--color-primary);
+      }
+      .eng-text-secondary {
+        font-family: 'Inter', sans-serif;
+        letter-spacing: 0.08em;
+        line-height: 1.35;
+        color: var(--color-secondary);
+      }
+      /* Requested High-end Korean Serif Typography (본명조 style) */
+      .font-serif-kr {
+        font-family: 'Noto Serif KR', serif;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+        line-height: 1.8;
+        color: var(--color-primary);
+      }
+      .kor-bold {
+        font-family: 'Noto Sans KR', sans-serif;
+        font-weight: 700;
+      }
       .font-serif {
-        font-family: 'Playfair Display', serif;
+        font-family: serif;
+        font-style: italic;
       }
       ::-webkit-scrollbar {
-        width: 4px;
+        width: 3px;
       }
       ::-webkit-scrollbar-track {
         background: transparent;
       }
       ::-webkit-scrollbar-thumb {
-        background: #e2e2e2;
-        border-radius: 10px;
+        background: #111111;
       }
       .no-scroll {
         overflow: hidden;
         overscroll-behavior: none;
-      }
-      input, textarea, select {
-        appearance: none;
-        border-radius: 0;
-      }
-
-      /* Infinite Ticker Animation */
-      @keyframes ticker-scroll {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-      }
-      .animate-ticker {
-        display: flex;
-        width: max-content;
-        animation: ticker-scroll 40s linear infinite;
-      }
-      .animate-ticker:hover {
-        animation-play-state: paused;
       }
     </style>
   <script type="importmap">

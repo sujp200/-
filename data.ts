@@ -27,21 +27,23 @@ const generateDummyProjects = (count: number, startId: number): Project[] => {
   for (let i = 0; i < count; i++) {
     const base = baseProjects[i % baseProjects.length];
     const id = startId + i;
-    const gallery = Array.from({ length: 30 }, (_, idx) => interiorImages[(id + idx) % interiorImages.length]);
+    const gallery = Array.from({ length: 15 }, (_, idx) => interiorImages[(id + idx) % interiorImages.length]);
     
     dummyData.push({
       id: `project-${id}`,
       title: `${base.title}`,
-      titleEn: `${base.titleEn} | ${2020 + (id % 5)}`,
+      titleEn: `${base.titleEn}`,
       mainImage: interiorImages[id % interiorImages.length],
       images: gallery,
       info: {
-        design: 'BBEOGGUGI',
-        construction: 'BBEOGGUGI',
-        photograph: 'Studio B',
+        design: '박서인, 유은지',
+        construction: '김성환',
+        photograph: '김태호',
         year: `${2020 + (id % 5)}`,
-        site: 'Seoul / Gyeonggi',
-        usage: base.usage
+        site: 'Seoul, Korea',
+        usage: base.usage,
+        area: `${90 + (id * 20)}㎡`,
+        scope: id % 3 === 0 ? 'Architecture / Space' : 'Space'
       },
       descriptionKr: '공간의 본질에 집중하며, 사용자의 라이프스타일을 최우선으로 고려한 디자인입니다. 고급 자재와 정교한 시공을 통해 시간이 흘러도 변치 않는 가치를 제안합니다.',
       descriptionEn: 'Focusing on the essence of space, this design prioritizes the user\'s lifestyle. Through high-end materials and sophisticated construction, we propose value that remains unchanged over time.',
@@ -57,14 +59,16 @@ export const projects: Project[] = [
     title: '교촌필방 오마카세 묵암',
     titleEn: 'KYOCHON PILBANG FINE DINING | MUKAM',
     mainImage: 'https://images.unsplash.com/photo-1550966842-28c199833749?auto=format&fit=crop&w=1200&q=80',
-    images: Array.from({ length: 30 }, (_, i) => interiorImages[i % interiorImages.length]),
+    images: Array.from({ length: 15 }, (_, i) => interiorImages[i % interiorImages.length]),
     info: {
-      design: 'BBEOGGUGI',
-      construction: 'BBEOGGUGI',
-      photograph: 'Septto',
+      design: '박서인, 유은지',
+      construction: '김성환',
+      photograph: '김태호',
       year: '2023',
       site: '127 Bogwang-ro, Yongsan-gu, Seoul',
-      usage: 'Commercial / Restaurant'
+      usage: 'Commercial / Restaurant',
+      area: '154㎡',
+      scope: 'Space'
     },
     descriptionKr: '전통과 현대가 공존하는 오마카세 공간입니다. "묵암"은 교촌의 본질을 반영한 공간으로 MZ세대와 접점을 만들고 진정성을 알릴 수 있는 감각적인 인테리어를 선보입니다.',
     descriptionEn: 'An omakase space where tradition and modernity coexist. Mukam reflects the essence of Kyochon, featuring a sensible interior designed to connect with the MZ generation.',
@@ -74,19 +78,30 @@ export const projects: Project[] = [
 ];
 
 export const team: TeamMember[] = [
-  { id: '1', name: '김성환', role: 'CEO', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&h=200&q=80' },
-  { id: '2', name: '박서인', role: 'Designer', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&h=200&q=80' },
-  { id: '3', name: '유은지', role: 'Designer', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&h=200&q=80' },
-  { id: '4', name: '서명원', role: 'PD', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&h=200&q=80' },
-];
-
-export const partners = [
-  { name: 'SAMSUNG', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg' },
-  { name: 'LX HAUSYS', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/LG_Hausys_Logo.svg' },
-  { name: 'HANSSEM', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Hanssem_logo.png' },
-  { name: 'KCC', logo: 'https://upload.wikimedia.org/wikipedia/commons/b/be/KCC_logo.png' },
-  { name: 'DORMA', logo: 'https://upload.wikimedia.org/wikipedia/commons/5/5e/Dormakaba_logo.svg' },
-  { name: 'DAELIM', logo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/Daelim_logo.png' }
+  { 
+    id: '1', 
+    name: '김성환', 
+    role: 'CEO', 
+    avatar: 'https://cdn-icons-png.flaticon.com/512/702/702797.png' // Light bulb illustration
+  },
+  { 
+    id: '2', 
+    name: '박서인', 
+    role: 'Designer', 
+    avatar: 'https://cdn-icons-png.flaticon.com/512/3159/3159310.png' 
+  },
+  { 
+    id: '3', 
+    name: '유은지', 
+    role: 'Designer', 
+    avatar: 'https://cdn-icons-png.flaticon.com/512/3159/3159310.png' 
+  },
+  { 
+    id: '4', 
+    name: '서명원', 
+    role: 'PD', 
+    avatar: 'https://cdn-icons-png.flaticon.com/512/685/685655.png' 
+  },
 ];
 
 export const channels: Channel[] = [
@@ -95,20 +110,20 @@ export const channels: Channel[] = [
     name: 'Instagram', 
     icon: 'Instagram', 
     url: 'https://www.instagram.com/bbeoggugi_official/', 
-    thumbnail: 'https://images.unsplash.com/photo-1611262588024-d12430b98920?q=80&w=1200&auto=format&fit=crop' // 3D Instagram Icon
+    thumbnail: 'https://images.unsplash.com/photo-1611262588024-d12430b98920?q=80&w=1200&auto=format&fit=crop' 
   },
   { 
     id: 'blog', 
     name: 'Naver Blog', 
     icon: 'Book', 
     url: 'https://blog.naver.com/lali8122', 
-    thumbnail: 'https://images.unsplash.com/photo-1614113484855-d36876d0d551?q=80&w=1200&auto=format&fit=crop' // Green 3D Modern Icon Render (Matches Naver Blog Green/White N vibe)
+    thumbnail: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1000&auto=format&fit=crop' 
   },
   { 
     id: 'yt', 
     name: 'YouTube', 
     icon: 'Youtube', 
     url: 'https://www.youtube.com/@bbeoggugi_homes', 
-    thumbnail: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1200&auto=format&fit=crop' // 3D YouTube Play Button Render
+    thumbnail: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1000&auto=format&fit=crop' 
   },
 ];
