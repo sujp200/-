@@ -1,40 +1,53 @@
 
 import { Project, TeamMember, Channel } from './types';
 
-// Helper to generate dummy projects for layout testing
+// Curated Interior Image URLs for a high-end feel
+const interiorImages = [
+  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80", // Modern Living
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80", // Luxury Kitchen
+  "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=80", // Minimal Bedroom
+  "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80", // Designer Chair
+  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80", // Commercial Office
+  "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=80", // Boutique Restaurant
+  "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80", // Apartment Lobby
+  "https://images.unsplash.com/photo-1616489953149-80516597950c?auto=format&fit=crop&w=1200&q=80", // Modern Bathroom
+  "https://images.unsplash.com/photo-1505691722718-250393ec4154?auto=format&fit=crop&w=1200&q=80", // Penthouse View
+  "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1200&q=80"  // Pop-up store feel
+];
+
 const generateDummyProjects = (count: number, startId: number): Project[] => {
   const dummyData: Project[] = [];
   const baseProjects = [
-    { title: '한남동 펜트하우스', titleEn: 'HANNAM PENTHOUSE', usage: 'Residential' },
-    { title: '성수 오피스 쇼룸', titleEn: 'SEONGSU SHOWROOM', usage: 'Commercial' },
-    { title: '평창동 단독주택', titleEn: 'PYEONGCHANG RESIDENCE', usage: 'Residential' },
-    { title: '압구정 플래그십 스토어', titleEn: 'APGUJEONG FLAGSHIP', usage: 'Retail' },
-    { title: '제주 스테이 오름', titleEn: 'JEJU STAY OREUM', usage: 'Hospitality' },
+    { title: '한남동 하이엔드 펜트하우스', titleEn: 'HANNAM LUXURY PENTHOUSE', usage: 'Residential' },
+    { title: '성수 플래그십 스토어', titleEn: 'SEONGSU FLAGSHIP STORE', usage: 'Commercial' },
+    { title: '청담동 프라이빗 오피스', titleEn: 'CHEONGDAM PRIVATE OFFICE', usage: 'Office' },
+    { title: '제주 프리미엄 스테이', titleEn: 'JEJU PREMIUM STAY', usage: 'Hospitality' },
+    { title: '반포 써밋 아파트 리모델링', titleEn: 'BANPO SUMMIT REMODELING', usage: 'Residential' },
   ];
 
   for (let i = 0; i < count; i++) {
     const base = baseProjects[i % baseProjects.length];
     const id = startId + i;
+    // Generate 20-30 images for each dummy project to test the new grid
+    const gallery = Array.from({ length: 24 }, (_, idx) => interiorImages[(id + idx) % interiorImages.length]);
+    
     dummyData.push({
       id: `project-${id}`,
-      title: `${base.title} ${id}`,
-      titleEn: `${base.titleEn} VOL.${id}`,
-      mainImage: `https://picsum.photos/id/${(id % 50) + 140}/1200/1600`, // Using taller images for 3:4 aspect
-      images: [
-        `https://picsum.photos/id/${id + 10}/800/600`,
-        `https://picsum.photos/id/${id + 11}/800/600`,
-      ],
+      title: `${base.title}`,
+      titleEn: `${base.titleEn} | ${2020 + (id % 5)}`,
+      mainImage: interiorImages[id % interiorImages.length],
+      images: gallery,
       info: {
-        design: 'CUCKOO STUDIO',
-        construction: 'CUCKOO STUDIO',
-        photograph: 'Internal Team',
-        year: '2024',
-        site: 'Seoul, South Korea',
+        design: 'BBEOGGUGI',
+        construction: 'BBEOGGUGI',
+        photograph: 'Studio B',
+        year: `${2020 + (id % 5)}`,
+        site: 'Seoul / Gyeonggi',
         usage: base.usage
       },
-      descriptionKr: '뻐꾸기인테리어의 감각으로 재해석된 공간입니다. 본질적인 아름다움에 집중합니다.',
-      descriptionEn: 'A space reinterpreted with the sensibility of Cuckoo Interior. We focus on essential beauty.',
-      logos: ['https://picsum.photos/id/20/100/100']
+      descriptionKr: '공간의 본질에 집중하며, 사용자의 라이프스타일을 최우선으로 고려한 디자인입니다. 고급 자재와 정교한 시공을 통해 시간이 흘러도 변치 않는 가치를 제안합니다.',
+      descriptionEn: 'Focusing on the essence of space, this design prioritizes the user\'s lifestyle. Through high-end materials and sophisticated construction, we propose value that remains unchanged over time.',
+      logos: []
     });
   }
   return dummyData;
@@ -45,33 +58,28 @@ export const projects: Project[] = [
     id: 'kyochon-pilbang',
     title: '교촌필방 오마카세 묵암',
     titleEn: 'KYOCHON PILBANG FINE DINING | MUKAM',
-    mainImage: 'https://picsum.photos/id/122/1200/1600',
-    images: [
-      'https://picsum.photos/id/101/800/600',
-      'https://picsum.photos/id/102/800/600',
-      'https://picsum.photos/id/103/800/600',
-      'https://picsum.photos/id/104/800/600',
-    ],
+    mainImage: 'https://images.unsplash.com/photo-1550966842-28c199833749?auto=format&fit=crop&w=1200&q=80',
+    images: Array.from({ length: 25 }, (_, i) => interiorImages[i % interiorImages.length]),
     info: {
-      design: 'NONESPACE',
-      construction: 'NONESPACE',
+      design: 'BBEOGGUGI',
+      construction: 'BBEOGGUGI',
       photograph: 'Septto',
       year: '2023',
       site: '127 Bogwang-ro, Yongsan-gu, Seoul',
-      usage: 'Pub & Restaurant'
+      usage: 'Commercial / Restaurant'
     },
-    descriptionKr: '1991년 구미 작은 동네에서 시작한 교촌치킨은 "정도경영"이라는 슬로건을 바탕으로 약 500개의 치킨 브랜드 사이에서 이제는 누구나 아는 대한민국의 치킨 문화를 선도하는 국민 브랜드로 성장한 기업입니다. "묵암"은 교촌의 본질을 반영한 공간으로 MZ세대와 접점을 만들고 진정성을 알릴 수 있는 공간을 만들고자 했습니다.',
-    descriptionEn: 'Founded in 1991 in a small town in Gumi, Kyochon Chicken began with the slogan "Jeongdo Management". Mukam is a space that reflects the essence of Kyochon, aiming to create a point of contact with the MZ generation and convey authenticity.',
-    logos: ['https://picsum.photos/id/20/100/100']
+    descriptionKr: '전통과 현대가 공존하는 오마카세 공간입니다. "묵암"은 교촌의 본질을 반영한 공간으로 MZ세대와 접점을 만들고 진정성을 알릴 수 있는 감각적인 인테리어를 선보입니다.',
+    descriptionEn: 'An omakase space where tradition and modernity coexist. Mukam reflects the essence of Kyochon, featuring a sensible interior designed to connect with the MZ generation.',
+    logos: []
   },
-  ...generateDummyProjects(24, 1) // Generates 24 more projects to total 25
+  ...generateDummyProjects(15, 1)
 ];
 
 export const team: TeamMember[] = [
-  { id: '1', name: '김동규', role: 'Main Designer', avatar: 'https://picsum.photos/id/64/100/100' },
-  { id: '2', name: '이지훈', role: 'Field Team', avatar: 'https://picsum.photos/id/65/100/100' },
-  { id: '3', name: '최아름', role: 'Video Team', avatar: 'https://picsum.photos/id/66/100/100' },
-  { id: '4', name: '박민석', role: '3D Designer', avatar: 'https://picsum.photos/id/67/100/100' },
+  { id: '1', name: '김성환', role: 'CEO', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&h=200&q=80' },
+  { id: '2', name: '박서인', role: 'Designer', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&h=200&q=80' },
+  { id: '3', name: '유은지', role: 'Designer', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&h=200&q=80' },
+  { id: '4', name: '서명원', role: 'PD', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&h=200&q=80' },
 ];
 
 export const channels: Channel[] = [
@@ -87,13 +95,13 @@ export const channels: Channel[] = [
     name: 'Naver Blog', 
     icon: 'Book', 
     url: 'https://blog.naver.com/lali8122', 
-    thumbnail: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1000&auto=format&fit=crop' 
+    thumbnail: 'https://images.unsplash.com/photo-1541140532154-b024d715b909?q=80&w=1000&auto=format&fit=crop' 
   },
   { 
     id: 'yt', 
     name: 'YouTube', 
     icon: 'Youtube', 
     url: 'https://www.youtube.com/@bbeoggugi_homes', 
-    thumbnail: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1000&auto=format&fit=crop' 
+    thumbnail: 'https://images.unsplash.com/photo-1524508762098-fd966ffb6ef9?q=80&w=1000&auto=format&fit=crop' 
   },
 ];
