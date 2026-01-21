@@ -82,12 +82,12 @@ export const team: TeamMember[] = [
     id: '1', 
     name: '김성환', 
     role: 'CEO', 
-    avatar: 'https://cdn-icons-png.flaticon.com/512/702/702797.png' // Light bulb illustration
+    avatar: 'https://cdn-icons-png.flaticon.com/512/702/702797.png'
   },
   { 
     id: '2', 
     name: '박서인', 
-    role: 'Designer', 
+    role: 'Head Designer', 
     avatar: 'https://cdn-icons-png.flaticon.com/512/3159/3159310.png' 
   },
   { 

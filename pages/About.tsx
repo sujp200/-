@@ -14,7 +14,6 @@ const About: React.FC = () => {
               alt="High-end Architectural Space" 
               className="w-full h-full object-cover grayscale-[20%] brightness-[0.95]"
             />
-            {/* Overlay for premium look */}
             <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
           </div>
         </div>
@@ -47,28 +46,97 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Team Section - Dotted Illustrations */}
-      <section className="mb-80">
-        <div className="flex flex-col items-center mb-40">
-            <h3 className="eng-text-secondary text-[12px] uppercase font-bold text-[#111111]">OUR COLLECTIVE</h3>
-            <div className="w-12 h-[2px] bg-[#111111] mt-6"></div>
+      {/* Team Section */}
+      <section className="mb-60 max-w-lg">
+        <div className="flex items-center gap-6 mb-16">
+            <h3 className="eng-text-secondary text-[10px] uppercase font-bold text-[#111111] tracking-[0.4em]">OUR COLLECTIVE</h3>
+            <div className="flex-grow h-[1px] bg-gray-100"></div>
         </div>
         
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-16 md:gap-32 text-center max-w-6xl mx-auto">
+        <div className="space-y-10">
           {team.map((member) => (
-            <div key={member.id} className="flex flex-col items-center group">
-              <div className="w-36 h-36 md:w-52 md:h-52 mb-12 relative flex items-center justify-center p-10 transition-all duration-700">
-                <div className="absolute inset-0 border-[1px] border-dashed border-gray-200 rounded-full group-hover:border-[#111111] group-hover:rotate-180 transition-all duration-1000 ease-in-out"></div>
-                <img 
-                    src={member.avatar} 
-                    alt={member.role} 
-                    className="w-full h-full object-contain grayscale opacity-20 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" 
-                />
+            <div key={member.id} className="flex items-center justify-between group">
+              <div className="flex items-center gap-10">
+                <span className="eng-text text-[9px] text-gray-300 font-bold group-hover:text-black transition-colors">0{member.id}</span>
+                <h4 className="kor-bold text-base md:text-lg text-[#111111]">{member.name}</h4>
               </div>
-              <h4 className="kor-bold text-xl mb-2">{member.name}</h4>
-              <p className="eng-text-secondary text-[10px] uppercase font-bold">{member.role}</p>
+              <p className="eng-text-secondary text-[9px] uppercase font-bold text-gray-400 group-hover:text-black transition-colors">{member.role}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Location Section - Refined with clearer Map UI */}
+      <section className="mb-80">
+        <div className="flex items-center gap-6 mb-16">
+            <h3 className="eng-text-secondary text-[10px] uppercase font-bold text-[#111111] tracking-[0.4em]">LOCATION</h3>
+            <div className="flex-grow h-[1px] bg-gray-100"></div>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-24">
+            <div className="lg:w-1/3 space-y-10">
+                <div>
+                    <span className="eng-text-secondary text-[9px] uppercase font-bold mb-3 block opacity-40 tracking-widest">Office Address</span>
+                    <p className="kor-bold text-xl leading-relaxed mb-1">서울 중구 장충단로8길 18 4층</p>
+                    <p className="eng-text-secondary text-[11px] uppercase font-medium text-gray-400 leading-snug">
+                      4F, 18, Jangchungdan-ro 8-gil, Jung-gu, Seoul, Republic of Korea
+                    </p>
+                </div>
+                <div>
+                    <span className="eng-text-secondary text-[9px] uppercase font-bold mb-3 block opacity-40 tracking-widest">Contact Information</span>
+                    <p className="kor-bold text-xl mb-1">010-4555-6764</p>
+                    <p className="eng-text-secondary text-[11px] uppercase font-medium text-gray-400">info@bbeoggugi.com</p>
+                </div>
+                <div className="pt-4">
+                  <a 
+                      href="https://map.naver.com/v5/search/%EC%84%9C%EC%9A%B8%20%EC%A4%91%EA%B5%AC%20%EC%9E%A5%EC%B6%A9%EB%8B%A8%EB%A1%9C8%EA%B8%B8%2018/address/14137837.525997277,4516315.656534208,%EC%84%9C%EC%9A%B8%ED%8A%B9%EB%B3%84%EC%8B%9C%20%EC%A4%91%EA%B5%AC%20%EC%9E%A5%EC%B6%A9%EB%8F%991%EA%B0%80%2059-3,new_addr?c=14137815.155705359,4516315.656534208,19,0,0,0,dh" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-block eng-text text-[10px] uppercase border-b border-black/20 pb-1 hover:border-black transition-all font-bold tracking-[0.2em]"
+                  >
+                      [ OPEN NAVER MAP ]
+                  </a>
+                </div>
+            </div>
+            
+            {/* Architectural Stylized Map Image */}
+            <div className="lg:w-2/3 h-[500px] bg-[#f8f8f8] border border-gray-100 relative overflow-hidden group shadow-lg">
+                <img 
+                  src="https://images.unsplash.com/photo-1548013146-72479768bbaa?auto=format&fit=crop&w=1600&q=80" 
+                  alt="Seoul Map Top View" 
+                  className="w-full h-full object-cover grayscale brightness-[1.05] opacity-60 group-hover:scale-110 transition-transform duration-[8000ms] ease-out"
+                />
+                
+                {/* Visual Map Grid Overlay */}
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/graphy.png')] opacity-20 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/40 to-transparent"></div>
+
+                {/* Marker with Precise Location Vibe */}
+                <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                    <div className="relative">
+                        {/* Ripple Effect */}
+                        <div className="w-20 h-20 border border-black/10 rounded-full animate-ping absolute -inset-0 m-auto"></div>
+                        <div className="w-40 h-40 border border-black/[0.03] rounded-full absolute -inset-0 m-auto"></div>
+                        
+                        {/* Center Point */}
+                        <div className="w-3 h-3 bg-black rounded-full relative z-10 shadow-xl border-2 border-white"></div>
+                        
+                        {/* Location Label Box */}
+                        <div className="absolute top-8 left-1/2 -translate-x-1/2 bg-white px-6 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-gray-50 min-w-[200px] animate-in fade-in slide-in-from-bottom-2 duration-1000">
+                           <span className="eng-text text-[9px] font-black uppercase tracking-[0.3em] block mb-2 text-black">BBEOGGUGI HQ</span>
+                           <span className="kor-bold text-[11px] block leading-tight text-gray-400">서울 중구 장충단로8길 18 4층</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Coordinates */}
+                <div className="absolute bottom-10 left-10 opacity-20">
+                    <div className="flex flex-col gap-1">
+                      <span className="eng-text text-[8px] uppercase tracking-[0.5em] text-black">37°33'31.3"N</span>
+                      <span className="eng-text text-[8px] uppercase tracking-[0.5em] text-black">127°00'19.8"E</span>
+                    </div>
+                </div>
+            </div>
         </div>
       </section>
     </div>

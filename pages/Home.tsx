@@ -4,87 +4,112 @@ import { useNavigate } from 'react-router-dom';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-  const [isOpening, setIsOpening] = useState(false);
+  const [isLit, setIsLit] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
-  const handleEnter = () => {
-    setIsOpening(true);
+  const handleLightSwitch = () => {
+    if (isLit) return;
+    setIsLit(true);
+    
+    // Sequence: Light turns on -> Delay for atmosphere -> Navigate
     setTimeout(() => {
       navigate('/space');
-    }, 1400);
+    }, 2800);
   };
 
   return (
-    <div className="relative w-full h-[100dvh] overflow-hidden bg-[#0D0B0A] flex items-center justify-center cursor-pointer" onClick={handleEnter}>
-      
-      {/* Background Reveal (The glowing core) */}
-      <div className="absolute inset-0 flex items-center justify-center bg-[#FDFCF8] overflow-hidden">
-          <div className={`transition-all duration-1200 delay-200 ${isOpening ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
-              <div className="text-center space-y-6">
-                  <span className="eng-text text-[10px] tracking-[1.5em] text-gray-400 uppercase">Architecture & Interior</span>
-                  <h2 className="text-6xl font-bold tracking-[0.5em] text-[#111111] mr-[-0.5em]">BBEOGGUGI</h2>
-              </div>
-          </div>
-          {/* Central Glow Light Bloom */}
-          <div className={`absolute inset-0 bg-yellow-50/20 mix-blend-screen transition-opacity duration-1000 ${isOpening ? 'opacity-100' : 'opacity-0'}`}></div>
+    <div 
+      className={`relative w-full h-[100dvh] overflow-hidden flex items-center justify-center select-none transition-colors duration-[1500ms] ease-in-out ${
+        isLit ? 'bg-[#FDFCF8]' : 'bg-[#EAE7E0]'
+      }`}
+      onClick={handleLightSwitch}
+    >
+      {/* 1. Background Logo (Centered & Foreground) */}
+      <div className={`absolute inset-0 flex items-center justify-center z-50 transition-all duration-[2500ms] cubic-bezier(0.2, 0, 0.2, 1) ${
+        isLit ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-95 blur-xl'
+      }`}>
+        <div className="text-center space-y-6">
+          <span className="eng-text text-[10px] tracking-[1.8em] text-gray-400 uppercase block ml-[1.8em]">Architecture & Space</span>
+          <h2 className="text-6xl md:text-8xl font-bold tracking-[0.4em] text-[#111111] mr-[-0.4em]">BBEOGGUGI</h2>
+        </div>
       </div>
 
-      {/* Parting Wood Doors */}
-      <div className="absolute inset-0 z-20 flex pointer-events-none">
-        {/* Left Wood Door */}
+      {/* 2. Ambient Shadow Overlay */}
+      <div className={`absolute inset-0 bg-black/5 pointer-events-none transition-opacity duration-[1500ms] ${
+        isLit ? 'opacity-0' : 'opacity-100'
+      }`}></div>
+
+      {/* 3. High-End Gold Stand Light (Centered behind text) */}
+      <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center h-[70vh] z-20">
+        
+        {/* Lamp Head */}
+        <div className="relative z-30">
+          {/* Light Bloom */}
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full bg-yellow-100/10 blur-[150px] transition-all duration-[2000ms] ${
+            isLit ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+          }`}></div>
+
+          {/* Lamp Head Silhouette */}
+          <div className="relative flex flex-col items-center">
+             <div className="w-[1px] h-12 bg-gradient-to-b from-[#8E795E] to-[#C5A059]"></div>
+             <div className="w-10 h-5 md:w-14 md:h-7 bg-gradient-to-br from-[#D4AF37] via-[#C5A059] to-[#8E795E] rounded-t-full relative overflow-hidden shadow-xl">
+                <div className="absolute inset-0 bg-black/10"></div>
+                <div className={`absolute bottom-0 left-0 w-full h-[1px] bg-white/50 transition-opacity duration-300 ${isLit ? 'opacity-100' : 'opacity-0'}`}></div>
+             </div>
+          </div>
+
+          {/* Cone of Light (Straight down) */}
+          <div 
+            className={`absolute top-full left-1/2 -translate-x-1/2 w-[600px] h-[800px] bg-gradient-to-b from-yellow-100/30 via-yellow-50/2 to-transparent transition-all duration-[1500ms] origin-top ${
+                isLit ? 'opacity-100 scale-100' : 'opacity-0 scale-y-0'
+            }`}
+            style={{ 
+              clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
+              transform: 'translateX(-50%)'
+            }}
+          ></div>
+        </div>
+
+        {/* Lamp Pole */}
+        <div className="w-[1.2px] h-full bg-gradient-to-b from-[#C5A059] via-[#D4AF37] to-[#A68948]"></div>
+
+        {/* Lamp Base */}
+        <div className="w-14 h-[1px] bg-[#8E795E]"></div>
+
+        {/* Click Trigger Area */}
         <div 
-          className={`w-1/2 h-full bg-[#1C1815] shadow-[30px_0_60px_rgba(0,0,0,0.6)] transition-transform duration-[1400ms] ease-[cubic-bezier(0.7,0,0.15,1)] flex items-center justify-end relative overflow-hidden ${isOpening ? '-translate-x-full' : 'translate-x-0'}`}
-          style={{ 
-            backgroundImage: 'linear-gradient(115deg, #1C1815 0%, #2D2621 100%)',
-          }}
+          className="absolute inset-x-[-100px] inset-y-0 cursor-pointer group"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
         >
-          {/* Subtle Wood Texture Overlay */}
-          <div className="absolute inset-0 opacity-15 bg-[url('https://www.transparenttextures.com/patterns/black-linen-2.png')]"></div>
-          
-          <div className="mr-[-2px] md:mr-[-4px] relative z-10">
-             <h1 className={`text-3xl md:text-7xl font-bold tracking-[0.2em] transition-all duration-700 uppercase text-[#E5D1BC] ${isOpening ? 'opacity-0 blur-lg' : 'opacity-100'}`}>Bbeog</h1>
+          {/* Interaction Cue */}
+          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 border border-[#C5A059]/40 rounded-full flex items-center justify-center transition-all duration-700 ${
+            isHovered && !isLit ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+          }`}>
+             <div className="w-2 h-2 bg-[#C5A059] rounded-full animate-pulse"></div>
           </div>
-
-          {/* Warm Edge Glow - Left Side of Gap */}
-          {!isOpening && (
-              <div className="absolute top-0 right-0 w-[6px] h-full bg-gradient-to-l from-yellow-200/30 to-transparent blur-md"></div>
-          )}
-        </div>
-
-        {/* Right Wood Door */}
-        <div 
-          className={`w-1/2 h-full bg-[#1C1815] shadow-[-30px_0_60px_rgba(0,0,0,0.6)] transition-transform duration-[1400ms] ease-[cubic-bezier(0.7,0,0.15,1)] flex items-center justify-start relative overflow-hidden ${isOpening ? 'translate-x-full' : 'translate-x-0'}`}
-          style={{ 
-            backgroundImage: 'linear-gradient(245deg, #1C1815 0%, #2D2621 100%)',
-          }}
-        >
-          {/* Subtle Wood Texture Overlay */}
-          <div className="absolute inset-0 opacity-15 bg-[url('https://www.transparenttextures.com/patterns/black-linen-2.png')]"></div>
-
-          <div className="ml-[-2px] md:ml-[-4px] relative z-10">
-             <h1 className={`text-3xl md:text-7xl font-bold tracking-[0.2em] transition-all duration-700 uppercase text-[#E5D1BC] ${isOpening ? 'opacity-0 blur-lg' : 'opacity-100'}`}>gugi</h1>
-          </div>
-
-          {/* Warm Edge Glow - Right Side of Gap */}
-          {!isOpening && (
-              <div className="absolute top-0 left-0 w-[6px] h-full bg-gradient-to-r from-yellow-200/30 to-transparent blur-md"></div>
-          )}
         </div>
       </div>
 
-      {/* Navigation Hint */}
-      <div className={`absolute inset-0 flex flex-col items-center justify-end pb-24 z-30 pointer-events-none transition-opacity duration-500 ${isOpening ? 'opacity-0' : 'opacity-100'}`}>
-        <div className="flex flex-col items-center gap-8">
-            <span className="text-[10px] tracking-[1.2em] text-[#E5D1BC]/30 uppercase font-light">Explore the Essence</span>
-            <div className="w-[1px] h-20 bg-gradient-to-b from-yellow-200/20 via-[#E5D1BC]/10 to-transparent"></div>
+      {/* 4. Floor Reflection */}
+      <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-40 bg-yellow-100/5 blur-[70px] rounded-full transition-opacity duration-[2000ms] ${
+        isLit ? 'opacity-100' : 'opacity-0'
+      }`}></div>
+
+      {/* 5. Instruction Text */}
+      <div className={`absolute bottom-16 left-0 w-full text-center z-[60] transition-all duration-1000 ${
+        isLit ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
+      }`}>
+        <div className="flex flex-col items-center gap-5">
+          <span className="eng-text text-[9px] tracking-[1.5em] text-[#111111]/40 uppercase ml-[1.5em]">Click light to reveal space</span>
+          <div className="w-14 h-[1px] bg-[#111111]/10"></div>
         </div>
       </div>
 
-      {/* Center Line Shadow */}
-      {!isOpening && (
-          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-              <div className="w-[1px] h-full bg-black/40"></div>
-          </div>
-      )}
+      {/* 6. Activation Flash */}
+      <div className={`absolute inset-0 bg-white z-[100] pointer-events-none transition-opacity duration-300 ${
+        isLit ? 'opacity-0' : 'hidden'
+      }`}></div>
     </div>
   );
 };

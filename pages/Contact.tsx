@@ -55,7 +55,7 @@ const Contact: React.FC = () => {
                 onChange={handleChange}
                 type="tel" 
                 className="w-full bg-transparent py-2 text-xs tracking-wider outline-none"
-                placeholder="010-0000-0000"
+                placeholder="010-4555-6764"
               />
             </div>
             <div className="border-b border-gray-100 focus-within:border-black transition-colors">
@@ -210,9 +210,9 @@ const Contact: React.FC = () => {
       </form>
       
       <div className="mt-20 pt-10 border-t border-gray-50 text-center space-y-2 opacity-50">
-          <p className="text-[9px] tracking-[0.3em] text-gray-400">INFO@BBEOGGUGIINTERIOR.COM</p>
-          <p className="text-[9px] tracking-[0.3em] text-gray-400">+82 2 1234 5678</p>
-          <p className="text-[9px] tracking-[0.3em] text-gray-400">SEOUL, KOREA</p>
+          <p className="text-[9px] tracking-[0.3em] text-gray-400 uppercase">INFO@BBEOGGUGI.COM</p>
+          <p className="text-[9px] tracking-[0.3em] text-gray-400 uppercase">+82 10 4555 6764</p>
+          <p className="text-[9px] tracking-[0.3em] text-gray-400 uppercase">SEOUL, KOREA</p>
       </div>
     </div>
   );
