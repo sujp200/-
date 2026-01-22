@@ -10,8 +10,7 @@ const Home: React.FC = () => {
   const handleLightSwitch = () => {
     if (isLit) return;
     setIsLit(true);
-    
-    // Sequence: Light turns on -> Pole moves up -> Navigate
+    // Dramatic delay before entering the archive, allowing the logo to stay visible
     setTimeout(() => {
       navigate('/space');
     }, 3200);
@@ -19,103 +18,107 @@ const Home: React.FC = () => {
 
   return (
     <div 
-      className={`relative w-full h-[100dvh] overflow-hidden flex items-center justify-center select-none transition-colors duration-[1500ms] ease-in-out ${
-        isLit ? 'bg-[#FDFCF8]' : 'bg-[#EAE7E0]'
+      className={`relative w-full h-[100dvh] overflow-hidden flex items-center justify-center select-none transition-colors duration-[2500ms] ease-in-out ${
+        isLit ? 'bg-[#FCFAF2]' : 'bg-[#E5E2DA]'
       }`}
       onClick={handleLightSwitch}
     >
-      {/* 1. Background Logo (Centered & Foremost) */}
-      <div className={`absolute inset-0 flex items-center justify-center z-[100] transition-all duration-[2500ms] cubic-bezier(0.2, 0, 0.2, 1) ${
-        isLit ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-95 blur-xl'
+      {/* 1. Background Logo: Emerges instantly with the light speed */}
+      <div className={`absolute inset-0 flex items-center justify-center z-[10] transition-all duration-[800ms] cubic-bezier(0.16, 1, 0.3, 1) ${
+        isLit ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-[0.99] blur-[40px]'
       }`}>
-        <div className="text-center space-y-6">
-          <span className="eng-text text-[10px] tracking-[1.8em] text-gray-400 uppercase block ml-[1.8em]">Architecture & Space</span>
-          <h2 className="text-6xl md:text-8xl font-bold tracking-[0.4em] text-[#111111] mr-[-0.4em]">BBEOGGUGI</h2>
+        <div className="text-center space-y-8 md:space-y-10">
+          <span className="eng-text text-[10px] md:text-[11px] tracking-[2.5em] text-gray-400 uppercase block ml-[2.5em]">Architecture & Space</span>
+          <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-[0.45em] text-[#111111] mr-[-0.45em] leading-none transition-all duration-1000">BBEOGGUGI</h2>
         </div>
       </div>
 
-      {/* 2. Ambient Shadow Overlay */}
-      <div className={`absolute inset-0 bg-black/5 pointer-events-none transition-opacity duration-[1500ms] ${
-        isLit ? 'opacity-0' : 'opacity-100'
-      }`}></div>
-
-      {/* 3. High-End Gold Stand Light */}
-      <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center h-[70vh] z-20">
+      {/* 2. Floating Point & Light Assembly */}
+      <div className="absolute inset-0 flex flex-col items-center pointer-events-none">
         
-        {/* Lamp Head (FIXED - Stay in position) */}
-        <div className={`relative z-30 transition-all duration-[2000ms] ${isLit ? 'scale-110' : 'scale-100'}`}>
-          {/* Light Bloom */}
-          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full bg-yellow-100/10 blur-[150px] transition-all duration-[2000ms] ${
-            isLit ? 'opacity-100 scale-120' : 'opacity-0 scale-50'
-          }`}></div>
+        {/* LIGHT CONE: Originates from the top point */}
+        <div 
+          className={`absolute top-[14.8%] left-1/2 -translate-x-1/2 w-[1800px] h-[2000px] bg-gradient-to-b from-yellow-100/35 via-yellow-50/5 to-transparent transition-all duration-[2200ms] origin-top z-[20] ${
+            isLit ? 'opacity-100 scale-100' : 'opacity-0 scale-y-0'
+          }`}
+          style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}
+        ></div>
 
-          {/* Lamp Head Silhouette */}
-          <div className="relative flex flex-col items-center">
-             <div className="w-[1px] h-12 bg-gradient-to-b from-[#8E795E] to-[#C5A059]"></div>
-             <div className="w-10 h-5 md:w-14 md:h-7 bg-gradient-to-br from-[#D4AF37] via-[#C5A059] to-[#8E795E] rounded-t-full relative overflow-hidden shadow-xl">
-                <div className="absolute inset-0 bg-black/10"></div>
-                <div className={`absolute bottom-0 left-0 w-full h-[1px] bg-white/50 transition-opacity duration-300 ${isLit ? 'opacity-100' : 'opacity-0'}`}></div>
-             </div>
-          </div>
-
-          {/* Cone of Light */}
-          <div 
-            className={`absolute top-full left-1/2 -translate-x-1/2 w-[600px] h-[800px] bg-gradient-to-b from-yellow-100/30 via-yellow-50/2 to-transparent transition-all duration-[1500ms] origin-top ${
-                isLit ? 'opacity-100 scale-100' : 'opacity-0 scale-y-0'
-            }`}
-            style={{ 
-              clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
-              transform: 'translateX(-50%)'
-            }}
-          ></div>
-        </div>
-
-        {/* Lamp Pole & Base (MOVING - Slides upwards) */}
-        <div className={`flex flex-col items-center h-full transition-all duration-[2500ms] ease-in-out ${
-            isLit ? '-translate-y-[150%] opacity-0 scale-y-0' : 'translate-y-0 opacity-100 scale-y-100'
+        {/* THE FLOATING OBJECT (The Stand) */}
+        <div className={`relative z-[40] w-full h-full flex flex-col items-center justify-start pt-[15vh] transition-all duration-[1200ms] cubic-bezier(0.19, 1, 0.22, 1) ${
+            isLit ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
         }`}>
-            {/* Lamp Pole */}
-            <div className="w-[1.2px] h-full bg-gradient-to-b from-[#C5A059] via-[#D4AF37] to-[#A68948]"></div>
-            {/* Lamp Base */}
-            <div className="w-14 h-[1px] bg-[#8E795E]"></div>
-        </div>
+          
+          {/* THE POINT: Interactive Core */}
+          <div className="relative flex items-center justify-center z-50">
+            {/* Pulsing Ripple circles (Only when not lit) */}
+            {!isLit && (
+              <>
+                <div className="absolute w-12 h-12 border border-[#D4AF37]/30 rounded-full animate-[ripple_3s_infinite]"></div>
+                <div className="absolute w-20 h-20 border border-[#D4AF37]/15 rounded-full animate-[ripple_3s_infinite_1s]"></div>
+              </>
+            )}
 
-        {/* Click Trigger Area */}
-        {!isLit && (
-          <div 
-            className="absolute inset-x-[-100px] inset-y-0 cursor-pointer group"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            {/* Interaction Cue */}
-            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 border border-[#C5A059]/40 rounded-full flex items-center justify-center transition-all duration-700 ${
-              isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
-            }`}>
-               <div className="w-2 h-2 bg-[#C5A059] rounded-full animate-pulse"></div>
-            </div>
+            {/* Solid Core Dot */}
+            <div className={`w-2.5 h-2.5 rounded-full transition-all duration-1000 ${
+                isLit ? 'bg-white shadow-[0_0_40px_10px_white] scale-125' : 'bg-[#D4AF37] shadow-[0_0_20px_rgba(212,175,55,0.4)]'
+            }`}></div>
+
+            {/* Glowing Aura on Hover */}
+            <div className={`absolute w-32 h-32 bg-[#D4AF37]/5 rounded-full blur-2xl transition-opacity duration-700 ${
+                isHovered && !isLit ? 'opacity-100' : 'opacity-0'
+            }`}></div>
           </div>
-        )}
-      </div>
 
-      {/* 4. Floor Reflection */}
-      <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-[500px] h-40 bg-yellow-100/5 blur-[70px] rounded-full transition-opacity duration-[2000ms] ${
-        isLit ? 'opacity-100' : 'opacity-0'
-      }`}></div>
-
-      {/* 5. Instruction Text */}
-      <div className={`absolute bottom-16 left-0 w-full text-center z-[100] transition-all duration-1000 ${
-        isLit ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
-      }`}>
-        <div className="flex flex-col items-center gap-5">
-          <span className="eng-text text-[9px] tracking-[1.5em] text-[#111111]/40 uppercase ml-[1.5em]">Click light to reveal space</span>
-          <div className="w-14 h-[1px] bg-[#111111]/10"></div>
+          {/* Stand Pole: Thin line fading into infinity */}
+          <div className={`w-[0.6px] h-[75vh] bg-gradient-to-b from-[#D4AF37] via-[#C5A059] to-transparent relative origin-top`}>
+             {/* Polished edge highlight */}
+             <div className="absolute inset-y-0 left-0 w-full bg-white/30 blur-[0.2px]"></div>
+          </div>
+          
+          {/* Ground Ambient Glow */}
+          <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-[100vw] h-[30vh] bg-yellow-100/10 blur-[140px] rounded-full transition-opacity duration-[2800ms] ${
+              isLit ? 'opacity-100' : 'opacity-0'
+          }`}></div>
         </div>
       </div>
 
-      {/* 6. Activation Flash */}
-      <div className={`absolute inset-0 bg-white z-[200] pointer-events-none transition-opacity duration-300 ${
-        isLit ? 'opacity-0' : 'hidden'
-      }`}></div>
+      {/* 3. Invisible Interaction Zone */}
+      {!isLit && (
+        <div 
+          className="absolute top-[10vh] left-1/2 -translate-x-1/2 w-40 h-40 z-[100] cursor-pointer"
+          onClick={handleLightSwitch}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+           {/* Hint text appearing near the point */}
+           <div className={`absolute top-20 left-1/2 -translate-x-1/2 text-center transition-all duration-700 ${
+             isHovered ? 'opacity-100 translate-y-4' : 'opacity-0 translate-y-0'
+           }`}>
+              <span className="eng-text text-[8px] tracking-[1.2em] text-[#D4AF37] uppercase whitespace-nowrap">Touch to Enlighten</span>
+           </div>
+        </div>
+      )}
+
+      {/* 4. Minimal Branding Navigation */}
+      <div className={`absolute bottom-24 left-0 w-full text-center z-[110] transition-all duration-2000 ${
+        isLit ? 'opacity-0 translate-y-10' : 'opacity-100 translate-y-0'
+      }`}>
+        <div className="flex flex-col items-center gap-12">
+          <div className="flex items-center gap-20">
+            <div className="w-8 h-[0.5px] bg-black/5"></div>
+            <span className="eng-text text-[10px] tracking-[2.5em] text-[#111111]/30 uppercase ml-[2.5em] font-medium">Beyond the Visible</span>
+            <div className="w-8 h-[0.5px] bg-black/5"></div>
+          </div>
+        </div>
+      </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes ripple {
+          0% { transform: scale(1); opacity: 0.8; }
+          100% { transform: scale(2.8); opacity: 0; }
+        }
+      `}} />
     </div>
   );
 };

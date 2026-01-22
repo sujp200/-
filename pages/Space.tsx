@@ -1,9 +1,19 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { projects } from '../data';
+import { projects as initialProjects } from '../data';
+import { Project } from '../types';
 
 const Space: React.FC = () => {
+  const [projects, setProjects] = useState<Project[]>(initialProjects);
+
+  useEffect(() => {
+    const savedProjects = localStorage.getItem('bbeoggugi_projects');
+    if (savedProjects) {
+      setProjects(JSON.parse(savedProjects));
+    }
+  }, []);
+
   return (
     <div className="px-6 md:px-12 max-w-[2400px] mx-auto">
       <div className="mb-24">
@@ -20,17 +30,17 @@ const Space: React.FC = () => {
             to={`/space/${project.id}`}
             className="group block"
           >
-            <div className="relative aspect-[3/4] overflow-hidden bg-gray-50 shadow-sm">
+            <div className="relative aspect-[3/4] overflow-hidden bg-gray-50 shadow-sm flex items-center justify-center">
               <img 
                 src={project.mainImage} 
+                onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/600x800?text=Image+Not+Found')}
                 alt={project.title}
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                 loading="lazy"
               />
               
-              {/* Refined Hover Overlay - No Wrapping Text */}
               <div className="absolute inset-0 bg-white/85 opacity-0 group-hover:opacity-100 transition-all duration-700 flex flex-col items-center justify-center p-6 text-center backdrop-blur-[3px]">
-                 <span className="kor-bold text-base md:text-lg lg:text-xl whitespace-nowrap translate-y-6 group-hover:translate-y-0 transition-all duration-700 delay-100 ease-out px-4">
+                 <span className="kor-bold text-base md:text-lg lg:text-xl whitespace-nowrap translate-y-6 group-hover:translate-y-0 transition-all duration-700 delay-100 ease-out px-4 text-[#111111]">
                    {project.title}
                  </span>
                  <div className="w-0 h-[1px] bg-[#111111]/30 mt-6 group-hover:w-12 transition-all duration-700 delay-200"></div>

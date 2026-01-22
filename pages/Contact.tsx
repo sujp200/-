@@ -16,6 +16,8 @@ const Contact: React.FC = () => {
     agreement: false
   });
 
+  const [submitted, setSubmitted] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as any;
     setFormData(prev => ({
@@ -24,6 +26,45 @@ const Contact: React.FC = () => {
     }));
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.agreement) {
+      alert('개인정보 동의가 필요합니다.');
+      return;
+    }
+
+    // Save to LocalStorage for Admin Dashboard
+    const inquiries = JSON.parse(localStorage.getItem('bbeoggugi_inquiries') || '[]');
+    const newInquiry = {
+      ...formData,
+      id: Date.now(),
+      date: new Date().toISOString(),
+      status: 'new'
+    };
+    localStorage.setItem('bbeoggugi_inquiries', JSON.stringify([newInquiry, ...inquiries]));
+    
+    // Simulate Email Trigger (Actual email requires backend/service)
+    console.log("Email Sent to: info@bbeoggugi.com", newInquiry);
+    
+    setSubmitted(true);
+    alert('문의가 성공적으로 전달되었습니다.');
+  };
+
+  if (submitted) {
+    return (
+      <div className="h-[60vh] flex flex-col items-center justify-center space-y-8 animate-in fade-in duration-1000">
+         <div className="w-16 h-16 border border-black rounded-full flex items-center justify-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 6L9 17l-5-5"/></svg>
+         </div>
+         <div className="text-center">
+            <h2 className="kor-bold text-2xl mb-2">감사합니다.</h2>
+            <p className="eng-text-secondary text-[11px] uppercase tracking-widest">Your inquiry has been received.</p>
+         </div>
+         <button onClick={() => window.location.reload()} className="eng-text text-[10px] underline underline-offset-8 uppercase opacity-40 hover:opacity-100 transition-opacity">Back to Contact</button>
+      </div>
+    );
+  }
+
   return (
     <div className="px-8 max-w-[1400px] mx-auto py-10">
       <div className="mb-24 text-center">
@@ -31,7 +72,7 @@ const Contact: React.FC = () => {
         <p className="text-[10px] tracking-[0.6em] text-gray-400 uppercase font-bold">Start Your Journey with BBEOGGUGI</p>
       </div>
 
-      <form className="max-w-4xl mx-auto space-y-16 pb-20" onSubmit={(e) => e.preventDefault()}>
+      <form className="max-w-4xl mx-auto space-y-16 pb-20" onSubmit={handleSubmit}>
         
         {/* Basic Information */}
         <section className="space-y-10">
@@ -40,6 +81,7 @@ const Contact: React.FC = () => {
               <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Name | 성함 *</label>
               <input 
                 name="name"
+                required
                 value={formData.name}
                 onChange={handleChange}
                 type="text" 
@@ -51,17 +93,19 @@ const Contact: React.FC = () => {
               <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Contact | 연락처 *</label>
               <input 
                 name="phone"
+                required
                 value={formData.phone}
                 onChange={handleChange}
                 type="tel" 
                 className="w-full bg-transparent py-2 text-xs tracking-wider outline-none"
-                placeholder="010-4555-6764"
+                placeholder="010-0000-0000"
               />
             </div>
             <div className="border-b border-gray-100 focus-within:border-black transition-colors">
               <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Email | 이메일 *</label>
               <input 
                 name="email"
+                required
                 value={formData.email}
                 onChange={handleChange}
                 type="email" 
@@ -208,12 +252,6 @@ const Contact: React.FC = () => {
           </button>
         </div>
       </form>
-      
-      <div className="mt-20 pt-10 border-t border-gray-50 text-center space-y-2 opacity-50">
-          <p className="text-[9px] tracking-[0.3em] text-gray-400 uppercase">INFO@BBEOGGUGI.COM</p>
-          <p className="text-[9px] tracking-[0.3em] text-gray-400 uppercase">+82 10 4555 6764</p>
-          <p className="text-[9px] tracking-[0.3em] text-gray-400 uppercase">SEOUL, KOREA</p>
-      </div>
     </div>
   );
 };

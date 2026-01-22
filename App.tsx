@@ -8,8 +8,8 @@ import ProjectDetail from './pages/ProjectDetail';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import ChannelPage from './pages/Channel';
+import Admin from './pages/Admin';
 
-// Scroll to top on route change
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -21,6 +21,27 @@ const ScrollToTop = () => {
 const AppContent: React.FC = () => {
   const location = useLocation();
   const isHome = location.pathname === '/';
+  
+  // Apply Global Design Settings from LocalStorage
+  useEffect(() => {
+    try {
+      const savedSettings = localStorage.getItem('admin_design_settings');
+      const settings = savedSettings ? JSON.parse(savedSettings) : {};
+      
+      if (settings.primaryColor) document.documentElement.style.setProperty('--color-primary', settings.primaryColor);
+      if (settings.secondaryColor) document.documentElement.style.setProperty('--color-secondary', settings.secondaryColor);
+      if (settings.baseFontSize) document.documentElement.style.fontSize = `${settings.baseFontSize}px`;
+      
+      // Apply Global Fonts
+      if (settings.mainFont) {
+         document.body.style.fontFamily = settings.mainFont === 'serif' 
+          ? "'Noto Serif KR', serif" 
+          : "'Noto Sans KR', sans-serif";
+      }
+    } catch (e) {
+      console.error("Failed to parse design settings:", e);
+    }
+  }, []);
 
   return (
     <div className={`min-h-screen ${isHome ? 'bg-[#FDFCF8]' : 'bg-white'} selection:bg-black selection:text-white transition-colors duration-700`}>
@@ -33,6 +54,7 @@ const AppContent: React.FC = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/channel" element={<ChannelPage />} />
+          <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>
     </div>

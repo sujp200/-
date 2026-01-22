@@ -41,10 +41,12 @@ const Layout: React.FC = () => {
         <div className="mb-4 md:mb-0">
           © 2024 BBEOGGUGI INTERIOR DESIGN STUDIO. ALL RIGHTS RESERVED.
         </div>
-        <div className="flex gap-6 uppercase">
+        <div className="flex gap-6 uppercase items-center">
           <a href="https://www.instagram.com/bbeoggugi_official/" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">Instagram</a>
           <a href="https://blog.naver.com/lali8122" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">Blog</a>
           <a href="https://www.youtube.com/@bbeoggugi_homes" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">YouTube</a>
+          <div className="w-[1px] h-3 bg-gray-200 mx-2 hidden md:block"></div>
+          <Link to="/admin" className={`hover:text-black transition-colors font-bold ${location.pathname === '/admin' ? 'text-black underline' : ''}`}>ADMIN</Link>
         </div>
       </footer>
     </div>
