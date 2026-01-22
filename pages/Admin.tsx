@@ -35,11 +35,16 @@ const Admin: React.FC = () => {
   const [loginError, setLoginError] = useState(false);
 
   useEffect(() => {
-    const savedProjects = localStorage.getItem('bbeoggugi_projects');
-    setProjects(savedProjects ? JSON.parse(savedProjects) : initialProjects);
-    
-    const savedInquiries = localStorage.getItem('bbeoggugi_inquiries');
-    if (savedInquiries) setInquiries(JSON.parse(savedInquiries));
+    try {
+      const savedProjects = localStorage.getItem('bbeoggugi_projects');
+      setProjects(savedProjects ? JSON.parse(savedProjects) : initialProjects);
+      
+      const savedInquiries = localStorage.getItem('bbeoggugi_inquiries');
+      if (savedInquiries) setInquiries(JSON.parse(savedInquiries));
+    } catch (error) {
+      console.error("Data loading error:", error);
+      setProjects(initialProjects);
+    }
 
     if (sessionStorage.getItem('admin_auth') === 'true') setIsAuthorized(true);
   }, []);
@@ -58,39 +63,44 @@ const Admin: React.FC = () => {
 
   const handleForgotPassword = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     const adminEmail = 'bbeoggugi@gmail.com';
-    if (window.confirm(`비밀번호 재설정 요청을 위해 관리자 이메일(${adminEmail})로 문의 메일을 작성하시겠습니까?`)) {
-      window.location.href = `mailto:${adminEmail}?subject=[Admin] 비밀번호 문의&body=뻐꾸기 인테리어 관리자 비밀번호 확인 요청드립니다.`;
+    if (window.confirm(`비밀번호 재설정 안내를 받으시려면 관리자 이메일(${adminEmail})로 문의 메일을 보내주세요. 메일 앱을 여시겠습니까?`)) {
+      window.location.href = `mailto:${adminEmail}?subject=[Admin] Password Inquiry&body=뻐꾸기 인테리어 관리자 비밀번호 확인을 요청합니다.`;
     }
   };
 
   const handleDeleteProject = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
-    e.stopPropagation(); // 편집 모드 토글 방지
+    e.stopPropagation(); 
     
     if (window.confirm('이 프로젝트를 정말로 삭제하시겠습니까? 삭제된 데이터는 복구할 수 없습니다.')) {
-      const updated = projects.filter(p => p.id !== id);
-      setProjects(updated);
-      localStorage.setItem('bbeoggugi_projects', JSON.stringify(updated));
-      alert('프로젝트가 삭제되었습니다.');
+      setProjects(prevProjects => {
+        const updated = prevProjects.filter(p => p.id !== id);
+        localStorage.setItem('bbeoggugi_projects', JSON.stringify(updated));
+        return updated;
+      });
+      alert('프로젝트가 목록에서 삭제되었습니다.');
     }
   };
 
   const handleDeleteInquiry = (e: React.MouseEvent, id: number) => {
     e.preventDefault();
-    e.stopPropagation(); // 상세 보기 토글 방지
+    e.stopPropagation(); 
     
-    if (window.confirm('이 문의 내역을 정말로 삭제하시겠습니까?')) {
-      const updated = inquiries.filter(inq => inq.id !== id);
-      setInquiries(updated);
-      localStorage.setItem('bbeoggugi_inquiries', JSON.stringify(updated));
+    if (window.confirm('해당 문의 내역을 정말로 삭제하시겠습니까?')) {
+      setInquiries(prevInquiries => {
+        const updated = prevInquiries.filter(inq => inq.id !== id);
+        localStorage.setItem('bbeoggugi_inquiries', JSON.stringify(updated));
+        return updated;
+      });
       alert('문의 내역이 삭제되었습니다.');
     }
   };
 
   const saveData = (key: string, data: any) => {
     localStorage.setItem(key, JSON.stringify(data));
-    alert('변경사항이 저장되었습니다.');
+    alert('변경사항이 안전하게 저장되었습니다.');
   };
 
   if (!isAuthorized) {
@@ -166,7 +176,7 @@ const Admin: React.FC = () => {
                       descriptionEn: '', 
                       logos: [] 
                     };
-                    setProjects([newProj, ...projects]);
+                    setProjects(prev => [newProj, ...prev]);
                   }} 
                   className="bg-black text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-gray-800 transition-colors"
                 >
@@ -186,12 +196,13 @@ const Admin: React.FC = () => {
                        </div>
                        <div className="flex gap-4">
                           <button 
-                            onClick={() => setEditingProjectId(editingProjectId === p.id ? null : p.id)} 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditingProjectId(editingProjectId === p.id ? null : p.id); }} 
                             className="text-[10px] font-bold border px-6 py-2 rounded-full hover:bg-black hover:text-white transition-all uppercase"
                           >
                             {editingProjectId === p.id ? 'Close' : 'Edit'}
                           </button>
                           <button 
+                            type="button"
                             onClick={(e) => handleDeleteProject(e, p.id)} 
                             className="text-[10px] font-bold border border-red-100 text-red-400 px-4 py-2 rounded-full hover:bg-red-500 hover:text-white hover:border-red-500 transition-all uppercase"
                           >
@@ -249,15 +260,16 @@ const Admin: React.FC = () => {
                          <React.Fragment key={inq.id}>
                            <tr 
                              className={`cursor-pointer transition-colors ${expandedInquiryId === inq.id ? 'bg-gray-50' : 'hover:bg-gray-50'}`} 
-                             onClick={() => setExpandedInquiryId(expandedInquiryId === inq.id ? null : inq.id)}
+                             onClick={(e) => { e.preventDefault(); setExpandedInquiryId(expandedInquiryId === inq.id ? null : inq.id); }}
                            >
                               <td className="py-6 px-6 text-xs italic text-gray-400">{new Date(inq.date).toLocaleDateString()}</td>
                               <td className="py-6 px-6"><span className="text-[10px] font-black uppercase border px-2 py-1 rounded-sm bg-white">{inq.type}</span></td>
                               <td className="py-6 px-6 kor-bold text-sm">{inq.name}</td>
                               <td className="py-6 px-6">
                                 <button 
+                                  type="button"
                                   onClick={(e) => handleDeleteInquiry(e, inq.id)} 
-                                  className="text-red-400 text-[10px] font-black uppercase hover:text-red-600 hover:underline transition-colors py-2 px-1"
+                                  className="text-red-400 text-[10px] font-black uppercase hover:text-red-600 hover:underline transition-colors py-2 px-4 border border-transparent hover:border-red-100 rounded-full"
                                 >
                                   Delete
                                 </button>
@@ -292,15 +304,9 @@ const Admin: React.FC = () => {
             </div>
           )}
 
-          {activeTab === 'design' && (
+          {(activeTab === 'design' || activeTab === 'settings') && (
             <div className="h-60 flex items-center justify-center border-2 border-dashed border-gray-100">
-               <span className="text-gray-300 uppercase tracking-widest text-[10px] font-black">Design Settings Module Loaded</span>
-            </div>
-          )}
-          
-          {activeTab === 'settings' && (
-            <div className="h-60 flex items-center justify-center border-2 border-dashed border-gray-100">
-               <span className="text-gray-300 uppercase tracking-widest text-[10px] font-black">General Settings Module Loaded</span>
+               <span className="text-gray-300 uppercase tracking-widest text-[10px] font-black">{activeTab.toUpperCase()} Settings Module Loaded</span>
             </div>
           )}
         </div>
