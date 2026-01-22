@@ -2,20 +2,40 @@
 import { Project, TeamMember, Channel } from './types';
 
 /**
- * Extremely stable and verified High-end Architecture & Interior Image URLs from Unsplash.
- * These IDs are curated and monitored for high availability.
+ * High-end Architecture & Interior Image URLs from Unsplash.
+ * A curated list of 30 high-quality images.
  */
 const interiorImages = [
-  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1600&auto=format&fit=crop", // Minimal Living
-  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1600&auto=format&fit=crop", // Modern Kitchen
-  "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1600&auto=format&fit=crop", // High-end Lounge
-  "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1600&auto=format&fit=crop", // Modern Office
-  "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1600&auto=format&fit=crop", // Commercial Store
-  "https://images.unsplash.com/photo-1534489503306-4441f3d7a1b1?q=80&w=1600&auto=format&fit=crop", // Architecture Detail
-  "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=1600&auto=format&fit=crop", // Aesthetic Interior
-  "https://images.unsplash.com/photo-1550966842-2849a224ef6c?q=80&w=1600&auto=format&fit=crop", // Luxury Restaurant
-  "https://images.unsplash.com/photo-1481277542470-605612bd2d61?q=80&w=1600&auto=format&fit=crop", // Wall Texture
-  "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1600&auto=format&fit=crop"  // Design Furniture
+  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1534489503306-4441f3d7a1b1?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1550966842-2849a224ef6c?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1481277542470-605612bd2d61?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1613545325278-f24b0cae1224?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1505691938895-1758d7eaa511?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1540518614846-7eded433c457?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1513519247388-19345ed504e3?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1513584684441-29d93b178c1d?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1560184897-ae75f418493e?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1560185127-6ed189bf02f4?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1560185893-a55caf0a52f9?q=80&w=1600&auto=format&fit=crop"
 ];
 
 const generateDummyProjects = (count: number, startId: number): Project[] => {
@@ -31,14 +51,17 @@ const generateDummyProjects = (count: number, startId: number): Project[] => {
   for (let i = 0; i < count; i++) {
     const base = baseProjects[i % baseProjects.length];
     const id = startId + i;
-    // Safely generate gallery with unique rotation
-    const gallery = Array.from({ length: 8 }, (_, idx) => interiorImages[(id + idx + 2) % interiorImages.length]);
+    
+    // Generate gallery with 30 unique rotation images per project
+    const gallery = Array.from({ length: 30 }, (_, idx) => 
+        interiorImages[(id + idx * 2) % interiorImages.length]
+    );
     
     dummyData.push({
       id: `project-${id}`,
       title: `${base.title}`,
       titleEn: `${base.titleEn}`,
-      mainImage: interiorImages[(id + 1) % interiorImages.length],
+      mainImage: interiorImages[(id * 3) % interiorImages.length],
       images: gallery,
       info: {
         design: '박서인, 유은지',
@@ -51,7 +74,7 @@ const generateDummyProjects = (count: number, startId: number): Project[] => {
         scope: id % 3 === 0 ? 'Architecture / Space' : 'Space'
       },
       descriptionKr: '공간의 본질에 집중하며, 사용자의 라이프스타일을 최우선으로 고려한 디자인입니다. 고급 자재와 정교한 시공을 통해 시간이 흘러도 변치 않는 가치를 제안합니다.',
-      descriptionEn: 'Focusing on the essence of space, this design prioritizes the user\'s lifestyle. Through high-end materials and sophisticated construction, we propose value that remains unchanged over time.',
+      descriptionEn: 'Focusing on the essence of space, this design prioritizes the user\'s lifestyle. Through high-end materials and sophisticated construction, we create value that remains unchanged over time.',
       logos: []
     });
   }
@@ -64,11 +87,7 @@ export const projects: Project[] = [
     title: '교촌필방 오마카세 묵암',
     titleEn: 'KYOCHON PILBANG FINE DINING | MUKAM',
     mainImage: 'https://images.unsplash.com/photo-1550966842-2849a224ef6c?q=80&w=1600&auto=format&fit=crop',
-    images: [
-      "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1600&auto=format&fit=crop",
-      ...interiorImages.slice(0, 8)
-    ],
+    images: Array.from({ length: 30 }, (_, i) => interiorImages[i % interiorImages.length]),
     info: {
       design: '박서인, 유은지',
       construction: '김성환',
@@ -88,11 +107,7 @@ export const projects: Project[] = [
     title: '성수 플래그십 스토어',
     titleEn: 'SEONGSU FLAGSHIP STORE',
     mainImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=1600&auto=format&fit=crop',
-    images: [
-      "https://images.unsplash.com/photo-1534489503306-4441f3d7a1b1?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1513584684441-29d93b178c1d?q=80&w=1600&auto=format&fit=crop",
-      ...interiorImages.slice(2, 9)
-    ],
+    images: Array.from({ length: 30 }, (_, i) => interiorImages[(i + 5) % interiorImages.length]),
     info: {
       design: '박서인, 서명원',
       construction: '김성환',

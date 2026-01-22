@@ -29,7 +29,7 @@ const Contact: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.agreement) {
-      alert('개인정보 동의가 필요합니다.');
+      alert('개인정보 수집 및 이용에 동의가 필요합니다.');
       return;
     }
 
@@ -68,8 +68,8 @@ const Contact: React.FC = () => {
   return (
     <div className="px-8 max-w-[1400px] mx-auto py-10">
       <div className="mb-24 text-center">
-        <h2 className="text-4xl font-serif mb-4">Project Inquiry</h2>
-        <p className="text-[10px] tracking-[0.6em] text-gray-400 uppercase font-bold">Start Your Journey with BBEOGGUGI</p>
+        <h2 className="text-4xl font-serif mb-4">Inquiry & Collaboration</h2>
+        <p className="text-[10px] tracking-[0.6em] text-gray-400 uppercase font-bold">Connect with BBEOGGUGI Studio</p>
       </div>
 
       <form className="max-w-4xl mx-auto space-y-16 pb-20" onSubmit={handleSubmit}>
@@ -78,7 +78,7 @@ const Contact: React.FC = () => {
         <section className="space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
             <div className="border-b border-gray-100 focus-within:border-black transition-colors">
-              <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Name | 성함 *</label>
+              <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Name | 성함/업체명 *</label>
               <input 
                 name="name"
                 required
@@ -86,7 +86,7 @@ const Contact: React.FC = () => {
                 onChange={handleChange}
                 type="text" 
                 className="w-full bg-transparent py-2 text-xs tracking-wider outline-none"
-                placeholder="Name"
+                placeholder="Name / Company"
               />
             </div>
             <div className="border-b border-gray-100 focus-within:border-black transition-colors">
@@ -114,7 +114,7 @@ const Contact: React.FC = () => {
               />
             </div>
             <div className="border-b border-gray-100 focus-within:border-black transition-colors">
-              <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Address | 공사 주소</label>
+              <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Address | 주소</label>
               <input 
                 name="address"
                 value={formData.address}
@@ -131,7 +131,7 @@ const Contact: React.FC = () => {
         <section className="space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
             <div className="border-b border-gray-100 focus-within:border-black transition-colors">
-              <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Property Type | 주거/상업 유형</label>
+              <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Inquiry Type | 문의 유형</label>
               <select 
                 name="type"
                 value={formData.type}
@@ -143,10 +143,12 @@ const Contact: React.FC = () => {
                 <option value="Villa">주거 - 빌라/단독주택 (Villa/House)</option>
                 <option value="Commercial">상업 - 카페/레스토랑 (Commercial)</option>
                 <option value="Office">상업 - 오피스 (Office)</option>
+                <option value="Collaboration">협업 및 제안 (Collaboration / Business)</option>
+                <option value="Press">미디어 취재 (Press / Media)</option>
               </select>
             </div>
             <div className="border-b border-gray-100 focus-within:border-black transition-colors">
-              <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Size | 평수/면적</label>
+              <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Size | 평수/면적 (해당 시)</label>
               <input 
                 name="size"
                 value={formData.size}
@@ -157,18 +159,18 @@ const Contact: React.FC = () => {
               />
             </div>
             <div className="border-b border-gray-100 focus-within:border-black transition-colors">
-              <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Schedule | 시공 예정 일정</label>
+              <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Schedule | 희망 일정</label>
               <input 
                 name="schedule"
                 value={formData.schedule}
                 onChange={handleChange}
                 type="text" 
                 className="w-full bg-transparent py-2 text-xs tracking-wider outline-none"
-                placeholder="e.g. 2024년 10월 중순 예정"
+                placeholder="e.g. 2024년 하반기 예정"
               />
             </div>
             <div className="border-b border-gray-100 focus-within:border-black transition-colors">
-              <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Budget | 예상 예산</label>
+              <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Budget | 예상 예산 (해당 시)</label>
               <select 
                 name="budget"
                 value={formData.budget}
@@ -180,6 +182,7 @@ const Contact: React.FC = () => {
                 <option value="50to100">5천만원 - 1억원</option>
                 <option value="100to200">1억원 - 2억원</option>
                 <option value="over200">2억원 이상</option>
+                <option value="N/A">해당 없음 (Business Proposal)</option>
               </select>
             </div>
           </div>
@@ -188,14 +191,14 @@ const Contact: React.FC = () => {
         {/* Content & Referral */}
         <section className="space-y-10">
           <div className="border-b border-gray-100 focus-within:border-black transition-colors">
-            <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Scope of Work | 공사 내용</label>
+            <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">Details | 문의 및 제안 내용</label>
             <textarea 
               name="content"
               value={formData.content}
               onChange={handleChange}
               rows={3} 
               className="w-full bg-transparent py-2 text-xs tracking-wider outline-none resize-none"
-              placeholder="상세 내용을 입력해주세요."
+              placeholder="내용을 입력해주세요."
             ></textarea>
           </div>
 
@@ -217,8 +220,8 @@ const Contact: React.FC = () => {
           </div>
         </section>
 
-        {/* Privacy Agreement */}
-        <section className="pt-4">
+        {/* Privacy Agreement & Policy Viewer */}
+        <section className="space-y-6 pt-4">
           <label className="flex items-center gap-3 cursor-pointer group">
             <div className="relative w-4 h-4 border border-gray-300 flex items-center justify-center group-hover:border-black transition-colors">
               <input 
@@ -230,10 +233,34 @@ const Contact: React.FC = () => {
               />
               {formData.agreement && <div className="w-2 h-2 bg-black"></div>}
             </div>
-            <span className="text-[10px] tracking-widest text-gray-500 uppercase">
+            <span className="text-[10px] tracking-widest text-gray-500 uppercase font-bold">
               Agree to Privacy Policy (개인정보 수집 및 이용 동의) *
             </span>
           </label>
+
+          {/* Scrollable Privacy Policy Box */}
+          <div className="w-full h-32 overflow-y-auto bg-gray-50 border border-gray-100 p-4 rounded-sm custom-scrollbar">
+            <div className="text-[10px] leading-relaxed text-gray-500 space-y-4 font-medium">
+              <div>
+                <p className="text-black font-bold mb-1">▶ 개인정보의 수집 및 이용목적</p>
+                <p>- 서비스 이용에 따른 본인식별, 실명확인, 가입의사 확인, 연령제한 서비스 이용</p>
+                <p>- 고지사항 전달, 불만처리 의사소통 경로 확보, 물품배송 시 정확한 배송지 정보 확보</p>
+                <p>- 신규 서비스 등 최신정보 안내 및 개인맞춤서비스 제공을 위한 자료</p>
+                <p>- 기타 원활한 양질의 서비스 제공 등</p>
+              </div>
+
+              <div>
+                <p className="text-black font-bold mb-1">▶ 수집하는 개인정보의 항목</p>
+                <p>- 이름, 이메일, 주소, 연락처, 핸드폰번호, 그 외 선택항목</p>
+              </div>
+
+              <div>
+                <p className="text-black font-bold mb-1">▶ 개인정보의 보유 및 이용기간</p>
+                <p>- 원칙적으로 개인정보의 수집 또는 제공받은 목적 달성 시 지체 없이 파기합니다.</p>
+                <p>- 다만, 원활한 서비스의 상담을 위해 상담 완료 후 내용을 3개월간 보유할 수 있으며 전자상거래에서의 소비자보호에 관한 법률 등 타법률에 의해 보존할 필요가 있는 경우에는 일정기간 보존합니다.</p>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Submit Button */}
@@ -252,6 +279,21 @@ const Contact: React.FC = () => {
           </button>
         </div>
       </form>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f9f9f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e0e0e0;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #111;
+        }
+      `}} />
     </div>
   );
 };

@@ -8,8 +8,10 @@ const Layout: React.FC = () => {
   const navItems = [
     { name: 'ABOUT', path: '/about' },
     { name: 'SPACE', path: '/space' },
+    { name: 'CAREER', path: '/career' },
     { name: 'CONTACT', path: '/contact' },
     { name: 'CHANNEL', path: '/channel' },
+    { name: 'SUGGEST', path: '/suggest' },
   ];
 
   return (
@@ -24,7 +26,7 @@ const Layout: React.FC = () => {
               key={item.path}
               to={item.path}
               className={`text-[11px] md:text-sm tracking-[0.15em] md:tracking-[0.2em] transition-opacity hover:opacity-100 ${
-                location.pathname.startsWith(item.path) ? 'opacity-100 font-bold underline underline-offset-4' : 'opacity-60 text-white'
+                location.pathname.startsWith(item.path) ? 'opacity-100 font-bold underline underline-offset-4 text-white' : 'opacity-60 text-white'
               }`}
             >
               {item.name}
