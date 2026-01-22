@@ -7,9 +7,8 @@ import Space from './pages/Space';
 import ProjectDetail from './pages/ProjectDetail';
 import About from './pages/About';
 import Contact from './pages/Contact';
-import ChannelPage from './pages/Channel';
+import JournalPage from './pages/Journal';
 import Careers from './pages/Careers';
-import Suggest from './pages/Suggest';
 import Admin from './pages/Admin';
 
 const ScrollToTop = () => {
@@ -73,9 +72,8 @@ const AppContent: React.FC = () => {
           <Route path="/space/:id" element={<ProjectDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/career" element={<Careers />} />
-          <Route path="/suggest" element={<Suggest />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/channel" element={<ChannelPage />} />
+          <Route path="/journal" element={<JournalPage />} />
           <Route path="/admin" element={<Admin />} />
         </Route>
       </Routes>

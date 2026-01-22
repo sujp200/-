@@ -5,6 +5,7 @@ export interface Project {
   titleEn: string;
   mainImage: string;
   images: string[];
+  floorPlans: string[]; // Updated to support multiple floors (1F, 2F, etc.)
   info: {
     design: string;
     construction: string;

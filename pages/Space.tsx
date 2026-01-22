@@ -6,21 +6,23 @@ import { Project } from '../types';
 
 const Space: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>(initialProjects);
+  const [header, setHeader] = useState({ title: 'Space Archive', subtitle: 'Timeless Architectural Dialogue' });
 
   useEffect(() => {
     const savedProjects = localStorage.getItem('bbeoggugi_projects');
-    if (savedProjects) {
-      setProjects(JSON.parse(savedProjects));
-    }
+    if (savedProjects) setProjects(JSON.parse(savedProjects));
+
+    const savedHeader = localStorage.getItem('bbeoggugi_space_header');
+    if (savedHeader) setHeader(JSON.parse(savedHeader));
   }, []);
 
   return (
     <div className="px-6 md:px-12 max-w-[2400px] mx-auto">
       <div className="mb-24">
-         <h2 className="text-5xl md:text-7xl font-serif mb-6 tracking-tighter text-[#111111]">Space Archive</h2>
+         <h2 className="text-5xl md:text-7xl font-serif mb-6 tracking-tighter text-[#111111]">{header.title}</h2>
          <div className="flex items-center gap-4">
             <div className="w-10 h-[1px] bg-[#111111]"></div>
-            <p className="eng-text-secondary text-[10px] uppercase font-bold">Timeless Architectural Dialogue</p>
+            <p className="eng-text-secondary text-[10px] uppercase font-bold">{header.subtitle}</p>
          </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-8 gap-y-20">

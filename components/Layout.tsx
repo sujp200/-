@@ -8,10 +8,9 @@ const Layout: React.FC = () => {
   const navItems = [
     { name: 'ABOUT', path: '/about' },
     { name: 'SPACE', path: '/space' },
-    { name: 'CAREER', path: '/career' },
     { name: 'CONTACT', path: '/contact' },
-    { name: 'CHANNEL', path: '/channel' },
-    { name: 'SUGGEST', path: '/suggest' },
+    { name: 'JOURNAL', path: '/journal' },
+    { name: 'CAREER', path: '/career' },
   ];
 
   return (
@@ -39,17 +38,30 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
 
-      <footer className="px-8 py-12 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center text-[9px] md:text-[10px] tracking-widest text-gray-400 text-center md:text-left">
-        <div className="mb-4 md:mb-0">
-          © 2024 BBEOGGUGI INTERIOR DESIGN STUDIO. ALL RIGHTS RESERVED.
+      <footer className="px-8 py-20 border-t border-gray-100 flex flex-col items-center text-center">
+        <div className="mb-10 space-y-4">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-10 text-[10px] md:text-[11px] tracking-[0.2em] text-[#111111] font-bold uppercase">
+             <a href="mailto:bbeoggugi@gmail.com" className="hover:opacity-50 transition-opacity">bbeoggugi@gmail.com</a>
+             <span className="hidden md:block w-[1px] h-3 bg-gray-200"></span>
+             <a href="tel:010-4555-6764" className="hover:opacity-50 transition-opacity">010-4555-6764</a>
+             <span className="hidden md:block w-[1px] h-3 bg-gray-200"></span>
+             <span className="kor-bold">김성환 대표</span>
+          </div>
         </div>
-        <div className="flex gap-6 uppercase items-center">
+
+        <div className="mb-8 flex gap-8 uppercase items-center text-[9px] tracking-widest text-gray-400">
           <a href="https://www.instagram.com/bbeoggugi_official/" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">Instagram</a>
           <a href="https://blog.naver.com/lali8122" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">Blog</a>
           <a href="https://www.youtube.com/@bbeoggugi_homes" target="_blank" rel="noopener noreferrer" className="hover:text-black transition-colors">YouTube</a>
-          <div className="w-[1px] h-3 bg-gray-200 mx-2 hidden md:block"></div>
-          <Link to="/admin" className={`hover:text-black transition-colors font-bold ${location.pathname === '/admin' ? 'text-black underline' : ''}`}>ADMIN</Link>
         </div>
+
+        <div className="text-[9px] md:text-[10px] tracking-[0.3em] text-gray-300 uppercase font-medium">
+          © 2024 BBEOGGUGI INTERIOR DESIGN STUDIO. ALL RIGHTS RESERVED.
+        </div>
+        
+        <Link to="/admin" className={`mt-8 text-[8px] tracking-widest text-gray-200 hover:text-black transition-colors uppercase font-bold ${location.pathname === '/admin' ? 'text-black' : ''}`}>
+          Admin Access
+        </Link>
       </footer>
     </div>
   );

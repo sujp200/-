@@ -22,11 +22,12 @@ const Careers: React.FC = () => {
 
   const benefits = [
     { title: 'Portfolio Value', kr: '독보적인 포트폴리오 가치', desc: '하이엔드 프로젝트의 전 과정에 참여하며, 디자이너로서 자신의 커리어에 자부심이 될 퀄리티 높은 포트폴리오를 완성합니다.' },
-    { title: 'Work-Life Balance', kr: '정시 퇴근과 야근 지원', desc: '효율적인 업무로 대부분 정시 퇴근(칼퇴)하는 문화를 지향합니다. 부득이한 야근 시에는 든든한 석식 제공과 야근 수당을 확실히 지원합니다.' },
-    { title: 'Team Harmony', kr: '화기애애한 소통 문화', desc: '인성이 좋고 대화가 잘 통하는 사람들이 모여 있습니다. 어떤 난관도 비난이 아닌 대화와 협업으로 함께 해결해나가는 따뜻한 팀입니다.' },
-    { title: 'Insight Trip', kr: '디자인 감각 지원', desc: '감각의 확장을 위해 국내외 주요 전시회 관람 및 공간 답사 비용을 전폭적으로 지원합니다. 업무 중에도 영감을 얻는 시간을 존중합니다.' },
-    { title: 'Prime Location', kr: '지하철역 5분 역세권', desc: '지하철역과 매우 인접한 접근성 좋은 스튜디오입니다. 쾌적한 출퇴근길과 감각적인 업무 환경을 제공합니다.' },
-    { title: 'Full Support', kr: '든든한 생활 및 휴식', desc: '매일 즐거운 점심 식대 지원, 4대 보험, 경조사 지원금은 물론 자유로운 연차 사용을 통해 충분한 리프레시를 보장합니다.' }
+    { title: 'Work-Life Balance', kr: '안정적인 근무 환경', desc: '효율적인 업무 시스템을 통해 안정적인 근무 시간을 지향합니다. 부득이한 업무 연장 시에는 규정에 따른 식사와 야근 수당을 지원합니다.' },
+    { title: 'Team Harmony', kr: '상호 존중의 협업 문화', desc: '서로를 존중하는 마음과 태도를 가진 사람들이 모인 그룹입니다. 원활한 대화와 협업을 통해 최선의 결과물을 함께 만들어 나가는 문화를 지향합니다.' },
+    { title: 'Insight Trip', kr: '디자인 감각 지원', desc: '감각의 확장을 위해 국내외 주요 전시회 관람 및 공간 답사 비용을 지원합니다. 업무 중 영감을 얻는 시간을 존중합니다.' },
+    { title: 'In-house Studio', kr: '사내 촬영 스튜디오 지원', desc: '창의적인 영감을 기록하고 표현할 수 있도록 사내에 마련된 전문 촬영 공간을 지원합니다. 개인 포트폴리오나 프로젝트의 완성도를 높이는 작업에 자유롭게 활용할 수 있습니다.' },
+    { title: 'Prime Location', kr: '지하철역 5분 역세권', desc: '지하철역과 인접한 접근성 좋은 스튜디오입니다. 쾌적한 출퇴근길과 감각적인 업무 환경을 제공합니다.' },
+    { title: 'Full Support', kr: '충분한 리프레시와 지원', desc: '매일의 점심 식대 지원, 4대 보험, 경조사 지원금은 물론 자유로운 연차 사용을 통해 개인의 충분한 리프레시를 보장합니다.' }
   ];
 
   useEffect(() => {
@@ -109,7 +110,7 @@ const Careers: React.FC = () => {
         </div>
       </section>
 
-      {/* OPEN POSITIONS - Updated Alignment */}
+      {/* OPEN POSITIONS */}
       <section className="mb-40">
         <div className="flex items-center gap-6 mb-20">
           <h3 className="eng-text-secondary text-[10px] uppercase font-bold text-[#111111] tracking-[0.4em]">OPEN POSITIONS</h3>
@@ -122,7 +123,6 @@ const Careers: React.FC = () => {
                key={pos.id} 
                className="group py-14 flex flex-col md:flex-row items-start gap-10 md:gap-0 hover:bg-gray-50/10 transition-colors px-4"
              >
-                {/* Column 1: Title & Type - Fixed Width on Desktop */}
                 <div className="w-full md:w-[280px] lg:w-[350px] space-y-3 shrink-0">
                    <h4 className="eng-text text-xl font-bold uppercase tracking-wider leading-none">
                      {pos.title}
@@ -132,14 +132,12 @@ const Careers: React.FC = () => {
                    </p>
                 </div>
 
-                {/* Column 2: Description - Flexible Center */}
                 <div className="flex-grow md:pr-20">
                    <p className="font-serif-kr text-[14px] leading-[1.8] text-gray-600 break-keep">
                      {pos.desc}
                    </p>
                 </div>
 
-                {/* Column 3: Action Button - Right Aligned */}
                 <div className="w-full md:w-auto shrink-0 md:pt-1">
                    <button 
                      onClick={() => handleSelectPosition(pos.title)} 

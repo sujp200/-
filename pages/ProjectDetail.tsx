@@ -9,6 +9,7 @@ const ProjectDetail: React.FC = () => {
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [activePlanIdx, setActivePlanIdx] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -38,52 +39,94 @@ const ProjectDetail: React.FC = () => {
   ];
 
   return (
-    <div className="px-6 md:px-12 max-w-[2800px] mx-auto pb-60">
-      <div className="flex flex-col lg:flex-row gap-16 lg:gap-32">
+    <div className="px-6 md:px-12 max-w-[2800px] mx-auto pb-40">
+      <div className="flex flex-col lg:flex-row gap-10 lg:gap-20 items-start relative">
         
-        {/* Project Info Sidebar - Sticky */}
-        <aside className="lg:w-[380px] xl:w-[480px] lg:shrink-0">
-          <div className="lg:sticky lg:top-40 space-y-16">
+        {/* Project Info Sidebar - Maximum height position (top-6) */}
+        <aside className="lg:w-[320px] xl:w-[440px] lg:shrink-0 lg:sticky lg:top-6">
+          <div className="space-y-4">
             
-            <div className="space-y-4">
-              {/* Updated Title: Using 'kor-bold' to match Space Archive hover font */}
-              <h1 className="text-2xl md:text-3xl lg:text-4xl kor-bold tracking-tight leading-tight text-[#111111]">
+            <div className="space-y-0.5">
+              <h1 className="text-xl md:text-2xl kor-bold tracking-tight leading-tight text-[#111111]">
                 {project.title}
               </h1>
-              <p className="eng-text-secondary text-[10px] uppercase font-bold tracking-[0.3em] opacity-30">
+              <p className="eng-text-secondary text-[8px] uppercase font-bold tracking-[0.3em] opacity-30">
                 {project.titleEn}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-10 gap-y-8 border-t border-gray-100 pt-12">
+            {/* Ultra-Compact Metadata Grid */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-gray-100 pt-3">
               {metaKeys.map(({ key, label }) => (
-                <div key={key} className="space-y-1.5">
-                  <span className="eng-text-secondary text-[8px] uppercase font-bold block opacity-40 tracking-widest">
+                <div key={key} className="space-y-0">
+                  <span className="eng-text-secondary text-[6px] uppercase font-bold block opacity-40 tracking-widest leading-none mb-0.5">
                     {label}
                   </span>
-                  <span className="kor-bold text-[13px] leading-tight block text-[#111111] opacity-90">
+                  <span className="kor-bold text-[9px] leading-tight block text-[#111111] opacity-90">
                     {(project.info as any)[key]}
                   </span>
                 </div>
               ))}
             </div>
 
-            <div className="space-y-10 pt-4">
-              <p className="font-serif-kr text-[16px] leading-[2] text-[#333] tracking-tight whitespace-pre-line break-keep">
+            {/* Description Text */}
+            <div className="space-y-2">
+              <p className="font-serif-kr text-[11px] leading-[1.6] text-[#333] tracking-tight whitespace-pre-line break-keep">
                 {project.descriptionKr}
               </p>
-              <div className="w-12 h-[1px] bg-gray-100"></div>
-              <p className="eng-text text-[12px] text-gray-400 font-light leading-relaxed tracking-wide whitespace-pre-line">
+              <p className="eng-text text-[8px] text-gray-400 font-light leading-relaxed tracking-wide whitespace-pre-line">
                 {project.descriptionEn}
               </p>
             </div>
 
-            <div className="pt-12 border-t border-gray-50">
+            {/* Multiple Architectural Floor Plans Section */}
+            {project.floorPlans && project.floorPlans.length > 0 && (
+              <div className="pt-4 border-t border-gray-50 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="eng-text text-[7px] font-black uppercase tracking-[0.4em] opacity-30">SKETCHUP 2D PLAN</span>
+                  
+                  {/* Floor Selector Tabs */}
+                  {project.floorPlans.length > 1 && (
+                    <div className="flex gap-2">
+                      {project.floorPlans.map((_, i) => (
+                        <button 
+                          key={i}
+                          onClick={() => setActivePlanIdx(i)}
+                          className={`eng-text text-[8px] font-black w-6 h-6 flex items-center justify-center transition-all ${
+                            activePlanIdx === i 
+                              ? 'bg-black text-white' 
+                              : 'bg-gray-50 text-gray-300 hover:text-black'
+                          }`}
+                        >
+                          {i + 1}F
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div 
+                  className="bg-white border border-gray-100 p-2 rounded-sm cursor-zoom-in hover:border-gray-300 transition-all group relative overflow-hidden"
+                  onClick={() => setSelectedImage(project.floorPlans[activePlanIdx])}
+                >
+                  <img 
+                    key={activePlanIdx}
+                    src={project.floorPlans[activePlanIdx]} 
+                    alt={`Floor Plan ${activePlanIdx + 1}`} 
+                    className="w-full h-auto opacity-80 group-hover:opacity-100 transition-all duration-700 mix-blend-multiply filter contrast-[1.1] brightness-[1.02] animate-in fade-in duration-500" 
+                    onError={(e) => { e.currentTarget.src = "https://via.placeholder.com/800x600?text=Drawing+Loading..."; }}
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/[0.01] transition-colors pointer-events-none"></div>
+                </div>
+              </div>
+            )}
+
+            <div className="pt-4 border-t border-gray-50">
               <button 
                 onClick={() => navigate('/space')}
-                className="group flex items-center gap-6 eng-text text-[10px] uppercase transition-all font-black tracking-[0.3em] hover:text-[#9A9A9A]"
+                className="group flex items-center gap-4 eng-text text-[8px] uppercase transition-all font-black tracking-[0.3em] hover:text-[#9A9A9A]"
               >
-                <div className="relative w-8 h-[1px] bg-black group-hover:bg-[#9A9A9A] transition-all overflow-hidden">
+                <div className="relative w-4 h-[1px] bg-black group-hover:bg-[#9A9A9A] transition-all overflow-hidden">
                    <div className="absolute inset-0 bg-white translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
                 </div>
                 ARCHIVE
@@ -92,67 +135,46 @@ const ProjectDetail: React.FC = () => {
           </div>
         </aside>
 
-        {/* Dynamic 2-Column Masonry Section - No text overlays on hover */}
-        <section className="flex-grow">
-          <div className="columns-1 sm:columns-2 gap-2 space-y-2">
+        {/* Expanded Gallery Section */}
+        <section className="flex-grow w-full">
+          <div className="columns-1 sm:columns-2 gap-4 space-y-4">
             {project.images.map((img, idx) => (
               <div 
                 key={idx} 
-                className="relative overflow-hidden bg-gray-50 cursor-zoom-in group transition-all duration-1000 break-inside-avoid shadow-sm mb-2"
+                className="relative overflow-hidden bg-gray-50 cursor-zoom-in group transition-all duration-1000 break-inside-avoid shadow-sm mb-4"
                 onClick={() => setSelectedImage(img)}
               >
                 <img 
                   src={img} 
                   onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/1200x1600?text=Architecture+Detail')}
                   alt={`${project.title} detail ${idx}`} 
-                  className="w-full h-auto object-cover group-hover:scale-110 transition-transform duration-[4000ms] ease-out grayscale-[0.05] group-hover:grayscale-0"
+                  className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-[3000ms] ease-out grayscale-[0.05] group-hover:grayscale-0"
                   loading="lazy"
                 />
-
-                {/* Subtle Visual Indicator (Optional, but cleaner without text) */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-700 pointer-events-none"></div>
-
-                <div className="absolute top-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-20">
-                    <span className="eng-text text-[8px] font-black text-black/40 tracking-widest bg-white/40 backdrop-blur-md px-2 py-1">
+                <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-20">
+                    <span className="eng-text text-[7px] font-black text-black/40 tracking-widest bg-white/50 backdrop-blur-md px-1.5 py-0.5">
                       {String(idx + 1).padStart(2, '0')}
                     </span>
                 </div>
               </div>
             ))}
           </div>
-          
-          {project.images.length === 0 && (
-             <div className="py-40 border border-dashed border-gray-100 text-center">
-                <span className="eng-text-secondary text-[11px] opacity-20 uppercase tracking-[0.5em] font-black">Archive Gallery Unavailable</span>
-             </div>
-          )}
         </section>
 
       </div>
 
-      {/* High-Resolution Fullscreen View Modal */}
+      {/* Fullscreen Modal */}
       {selectedImage && (
         <div 
-            className="fixed inset-0 z-[100] bg-white/98 backdrop-blur-3xl flex items-center justify-center p-4 md:p-12 cursor-zoom-out animate-in fade-in duration-700"
+            className="fixed inset-0 z-[100] bg-white flex items-center justify-center p-4 md:p-12 cursor-zoom-out animate-in fade-in duration-500"
             onClick={() => setSelectedImage(null)}
         >
             <div className="relative w-full h-full flex items-center justify-center">
                 <img 
                     src={selectedImage} 
-                    onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/1920x1080?text=Preview+Unavailable')}
                     alt="Fullscreen view" 
-                    className="max-w-full max-h-full object-contain animate-in zoom-in-95 duration-700 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.2)]"
+                    className="max-w-full max-h-full object-contain animate-in zoom-in-95 duration-500 mix-blend-multiply"
                 />
-            </div>
-            <button 
-                className="absolute top-8 right-8 md:top-16 md:right-16 eng-text text-black text-[11px] font-black uppercase hover:opacity-40 transition-opacity tracking-[0.4em]"
-                onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
-            >
-                [ CLOSE ]
-            </button>
-            
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-none opacity-20">
-                <span className="eng-text text-[8px] uppercase tracking-[0.6em]">BBEOGGUGI ARCHIVE PREVIEW</span>
             </div>
         </div>
       )}
