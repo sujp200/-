@@ -46,6 +46,8 @@ const Layout: React.FC = () => {
              <a href="tel:010-4555-6764" className="hover:opacity-50 transition-opacity">010-4555-6764</a>
              <span className="hidden md:block w-[1px] h-3 bg-gray-200"></span>
              <span className="kor-bold">김성환 대표</span>
+             <span className="hidden md:block w-[1px] h-3 bg-gray-200"></span>
+             <span className="eng-text text-[9px] tracking-widest text-gray-400">사업자번호 : 243-50-00179</span>
           </div>
         </div>
 
