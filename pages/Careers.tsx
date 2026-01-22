@@ -109,15 +109,45 @@ const Careers: React.FC = () => {
         </div>
       </section>
 
-      {/* OPEN POSITIONS */}
+      {/* OPEN POSITIONS - Updated Alignment */}
       <section className="mb-40">
-        <div className="flex items-center gap-6 mb-20"><h3 className="eng-text-secondary text-[10px] uppercase font-bold text-[#111111] tracking-[0.4em]">OPEN POSITIONS</h3><div className="flex-grow h-[1px] bg-gray-100"></div></div>
+        <div className="flex items-center gap-6 mb-20">
+          <h3 className="eng-text-secondary text-[10px] uppercase font-bold text-[#111111] tracking-[0.4em]">OPEN POSITIONS</h3>
+          <div className="flex-grow h-[1px] bg-gray-100"></div>
+        </div>
+        
         <div className="divide-y divide-gray-100 border-y border-gray-100 mb-20">
            {positions.map(pos => (
-             <div key={pos.id} className="group py-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:bg-gray-50/5 transition-colors px-4">
-                <div className="space-y-2"><h4 className="eng-text text-xl font-bold uppercase tracking-wider">{pos.title}</h4><p className="kor-bold text-xs text-gray-400">{pos.type}</p></div>
-                <div className="md:max-w-md"><p className="font-serif-kr text-sm text-gray-600">{pos.desc}</p></div>
-                <button onClick={() => handleSelectPosition(pos.title)} className="eng-text text-[10px] font-black uppercase tracking-widest bg-black text-white px-8 py-3 rounded-full hover:bg-gray-800 transition-all">Apply Now</button>
+             <div 
+               key={pos.id} 
+               className="group py-14 flex flex-col md:flex-row items-start gap-10 md:gap-0 hover:bg-gray-50/10 transition-colors px-4"
+             >
+                {/* Column 1: Title & Type - Fixed Width on Desktop */}
+                <div className="w-full md:w-[280px] lg:w-[350px] space-y-3 shrink-0">
+                   <h4 className="eng-text text-xl font-bold uppercase tracking-wider leading-none">
+                     {pos.title}
+                   </h4>
+                   <p className="kor-bold text-[11px] text-gray-400 uppercase tracking-widest">
+                     {pos.type}
+                   </p>
+                </div>
+
+                {/* Column 2: Description - Flexible Center */}
+                <div className="flex-grow md:pr-20">
+                   <p className="font-serif-kr text-[14px] leading-[1.8] text-gray-600 break-keep">
+                     {pos.desc}
+                   </p>
+                </div>
+
+                {/* Column 3: Action Button - Right Aligned */}
+                <div className="w-full md:w-auto shrink-0 md:pt-1">
+                   <button 
+                     onClick={() => handleSelectPosition(pos.title)} 
+                     className="eng-text text-[10px] font-black uppercase tracking-widest bg-black text-white px-10 py-3.5 rounded-full hover:bg-gray-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
+                   >
+                     Apply Now
+                   </button>
+                </div>
              </div>
            ))}
         </div>

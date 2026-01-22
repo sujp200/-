@@ -85,11 +85,18 @@ const Admin: React.FC = () => {
     setIsRecoveryMode(false);
   };
 
+  // Fix: Explicitly cast e.target as HTMLInputElement to ensure access to files property
+  // and check result type to satisfy TypeScript strictness
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (base64: string) => void) => {
-    const file = e.target.files?.[0];
+    const target = e.target as HTMLInputElement;
+    const file = target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => callback(reader.result as string);
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          callback(reader.result);
+        }
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -277,7 +284,9 @@ const Admin: React.FC = () => {
                                   <div className="relative">
                                      <button className="text-[9px] bg-black text-white px-5 py-2 rounded-full font-black uppercase hover:opacity-80">+ ADD GALLERY PHOTO</button>
                                      <input type="file" multiple className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => {
-                                        const files = Array.from(e.target.files || []);
+                                        // Fix: Cast e.target as HTMLInputElement and iterate files carefully to satisfy Blob requirements
+                                        const target = e.target as HTMLInputElement;
+                                        const files = Array.from(target.files || []);
                                         files.forEach(file => {
                                           const reader = new FileReader();
                                           reader.onloadend = () => {
@@ -285,7 +294,7 @@ const Admin: React.FC = () => {
                                             u[idx].images = [...u[idx].images, reader.result as string];
                                             setProjects([...u]);
                                           };
-                                          reader.readAsDataURL(file);
+                                          reader.readAsDataURL(file as Blob);
                                         });
                                      }} />
                                   </div>

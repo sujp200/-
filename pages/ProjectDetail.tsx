@@ -46,7 +46,8 @@ const ProjectDetail: React.FC = () => {
           <div className="lg:sticky lg:top-40 space-y-16">
             
             <div className="space-y-4">
-              <h1 className="text-3xl md:text-4xl font-serif font-light tracking-tighter leading-tight text-[#111111]">
+              {/* Updated Title: Using 'kor-bold' to match Space Archive hover font */}
+              <h1 className="text-2xl md:text-3xl lg:text-4xl kor-bold tracking-tight leading-tight text-[#111111]">
                 {project.title}
               </h1>
               <p className="eng-text-secondary text-[10px] uppercase font-bold tracking-[0.3em] opacity-30">
@@ -91,9 +92,8 @@ const ProjectDetail: React.FC = () => {
           </div>
         </aside>
 
-        {/* Dynamic 2-Column Masonry Section */}
+        {/* Dynamic 2-Column Masonry Section - No text overlays on hover */}
         <section className="flex-grow">
-          {/* Changed columns to 2 on most screens, 1 on small mobile, and reduced gap for close proximity */}
           <div className="columns-1 sm:columns-2 gap-2 space-y-2">
             {project.images.map((img, idx) => (
               <div 
@@ -109,21 +109,12 @@ const ProjectDetail: React.FC = () => {
                   loading="lazy"
                 />
 
-                {/* Archive Style Overlay - Integrated Title Overlay */}
-                <div className="absolute inset-0 bg-white/85 opacity-0 group-hover:opacity-100 transition-all duration-700 flex flex-col items-center justify-center p-6 text-center backdrop-blur-[4px] z-10">
-                   <span className="kor-bold text-base md:text-xl lg:text-2xl whitespace-nowrap translate-y-8 group-hover:translate-y-0 transition-all duration-700 delay-100 ease-out px-4 text-[#111111]">
-                     {project.title}
-                   </span>
-                   <div className="w-0 h-[1.5px] bg-[#111111]/40 mt-6 group-hover:w-16 transition-all duration-700 delay-200"></div>
-                   <span className="eng-text-secondary text-[10px] uppercase mt-6 translate-y-8 group-hover:translate-y-0 transition-all duration-700 delay-300 font-black tracking-[0.3em] whitespace-nowrap">
-                      {project.info.usage}
-                   </span>
-                </div>
+                {/* Subtle Visual Indicator (Optional, but cleaner without text) */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-700 pointer-events-none"></div>
 
-                {/* Subtle Visual Cues */}
-                <div className="absolute top-6 left-6 opacity-40 group-hover:opacity-100 transition-opacity duration-1000 z-20">
-                    <span className="eng-text text-[8px] font-black text-black/50 tracking-widest">
-                      ARCHIVE / {String(idx + 1).padStart(2, '0')}
+                <div className="absolute top-6 left-6 opacity-0 group-hover:opacity-100 transition-opacity duration-1000 z-20">
+                    <span className="eng-text text-[8px] font-black text-black/40 tracking-widest bg-white/40 backdrop-blur-md px-2 py-1">
+                      {String(idx + 1).padStart(2, '0')}
                     </span>
                 </div>
               </div>
