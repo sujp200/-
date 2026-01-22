@@ -7,11 +7,6 @@ const ChannelPage: React.FC = () => {
     <div className="px-8 max-w-[1920px] mx-auto">
       <div className="mb-48 text-center">
         <h2 className="text-7xl md:text-[10rem] font-serif font-light mb-12 tracking-tighter opacity-[0.03] select-none text-[#111111] uppercase">CHANNEL</h2>
-        <div className="flex items-center justify-center gap-8 -mt-20">
-            <div className="w-16 h-[1px] bg-gray-200"></div>
-            {/* "Digital Curations" removed as requested */}
-            <div className="w-16 h-[1px] bg-gray-200"></div>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-20 md:gap-32 max-w-6xl mx-auto pb-80">

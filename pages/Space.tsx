@@ -28,27 +28,27 @@ const Space: React.FC = () => {
                 loading="lazy"
               />
               
-              {/* Refined Hover Overlay - Fade-in semi-transparent with Black Text */}
-              <div className="absolute inset-0 bg-white/85 opacity-0 group-hover:opacity-100 transition-all duration-700 flex flex-col items-center justify-center p-8 text-center backdrop-blur-[3px]">
-                 <span className="kor-text text-lg md:text-xl translate-y-6 group-hover:translate-y-0 transition-all duration-700 delay-100 ease-out">
+              {/* Refined Hover Overlay - No Wrapping Text */}
+              <div className="absolute inset-0 bg-white/85 opacity-0 group-hover:opacity-100 transition-all duration-700 flex flex-col items-center justify-center p-6 text-center backdrop-blur-[3px]">
+                 <span className="kor-bold text-base md:text-lg lg:text-xl whitespace-nowrap translate-y-6 group-hover:translate-y-0 transition-all duration-700 delay-100 ease-out px-4">
                    {project.title}
                  </span>
                  <div className="w-0 h-[1px] bg-[#111111]/30 mt-6 group-hover:w-12 transition-all duration-700 delay-200"></div>
-                 <span className="eng-text-secondary text-[9px] uppercase mt-6 translate-y-6 group-hover:translate-y-0 transition-all duration-700 delay-300 font-bold">
+                 <span className="eng-text-secondary text-[9px] uppercase mt-6 translate-y-6 group-hover:translate-y-0 transition-all duration-700 delay-300 font-bold tracking-[0.2em] whitespace-nowrap">
                     {project.info.usage}
                  </span>
               </div>
             </div>
             
             <div className="mt-6 space-y-2">
-              <h3 className="eng-text text-[11px] font-bold text-[#111111] line-clamp-1 uppercase">
+              <h3 className="eng-text text-[11px] font-bold text-[#111111] line-clamp-1 uppercase tracking-wider">
                 {project.titleEn}
               </h3>
               <div className="flex justify-between items-center">
-                 <span className="eng-text-secondary text-[9px] uppercase font-bold">
+                 <span className="eng-text-secondary text-[9px] uppercase font-bold opacity-60">
                     {project.info.site}
                  </span>
-                 <span className="eng-text-secondary text-[10px] italic font-serif">
+                 <span className="eng-text-secondary text-[10px] italic font-serif opacity-60">
                     {project.info.year}
                  </span>
               </div>

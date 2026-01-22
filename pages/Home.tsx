@@ -11,10 +11,10 @@ const Home: React.FC = () => {
     if (isLit) return;
     setIsLit(true);
     
-    // Sequence: Light turns on -> Delay for atmosphere -> Navigate
+    // Sequence: Light turns on -> Pole moves up -> Navigate
     setTimeout(() => {
       navigate('/space');
-    }, 2800);
+    }, 3200);
   };
 
   return (
@@ -24,8 +24,8 @@ const Home: React.FC = () => {
       }`}
       onClick={handleLightSwitch}
     >
-      {/* 1. Background Logo (Centered & Foreground) */}
-      <div className={`absolute inset-0 flex items-center justify-center z-50 transition-all duration-[2500ms] cubic-bezier(0.2, 0, 0.2, 1) ${
+      {/* 1. Background Logo (Centered & Foremost) */}
+      <div className={`absolute inset-0 flex items-center justify-center z-[100] transition-all duration-[2500ms] cubic-bezier(0.2, 0, 0.2, 1) ${
         isLit ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-95 blur-xl'
       }`}>
         <div className="text-center space-y-6">
@@ -39,14 +39,14 @@ const Home: React.FC = () => {
         isLit ? 'opacity-0' : 'opacity-100'
       }`}></div>
 
-      {/* 3. High-End Gold Stand Light (Centered behind text) */}
+      {/* 3. High-End Gold Stand Light */}
       <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center h-[70vh] z-20">
         
-        {/* Lamp Head */}
-        <div className="relative z-30">
+        {/* Lamp Head (FIXED - Stay in position) */}
+        <div className={`relative z-30 transition-all duration-[2000ms] ${isLit ? 'scale-110' : 'scale-100'}`}>
           {/* Light Bloom */}
           <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full bg-yellow-100/10 blur-[150px] transition-all duration-[2000ms] ${
-            isLit ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+            isLit ? 'opacity-100 scale-120' : 'opacity-0 scale-50'
           }`}></div>
 
           {/* Lamp Head Silhouette */}
@@ -58,7 +58,7 @@ const Home: React.FC = () => {
              </div>
           </div>
 
-          {/* Cone of Light (Straight down) */}
+          {/* Cone of Light */}
           <div 
             className={`absolute top-full left-1/2 -translate-x-1/2 w-[600px] h-[800px] bg-gradient-to-b from-yellow-100/30 via-yellow-50/2 to-transparent transition-all duration-[1500ms] origin-top ${
                 isLit ? 'opacity-100 scale-100' : 'opacity-0 scale-y-0'
@@ -70,25 +70,31 @@ const Home: React.FC = () => {
           ></div>
         </div>
 
-        {/* Lamp Pole */}
-        <div className="w-[1.2px] h-full bg-gradient-to-b from-[#C5A059] via-[#D4AF37] to-[#A68948]"></div>
-
-        {/* Lamp Base */}
-        <div className="w-14 h-[1px] bg-[#8E795E]"></div>
+        {/* Lamp Pole & Base (MOVING - Slides upwards) */}
+        <div className={`flex flex-col items-center h-full transition-all duration-[2500ms] ease-in-out ${
+            isLit ? '-translate-y-[150%] opacity-0 scale-y-0' : 'translate-y-0 opacity-100 scale-y-100'
+        }`}>
+            {/* Lamp Pole */}
+            <div className="w-[1.2px] h-full bg-gradient-to-b from-[#C5A059] via-[#D4AF37] to-[#A68948]"></div>
+            {/* Lamp Base */}
+            <div className="w-14 h-[1px] bg-[#8E795E]"></div>
+        </div>
 
         {/* Click Trigger Area */}
-        <div 
-          className="absolute inset-x-[-100px] inset-y-0 cursor-pointer group"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          {/* Interaction Cue */}
-          <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 border border-[#C5A059]/40 rounded-full flex items-center justify-center transition-all duration-700 ${
-            isHovered && !isLit ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
-          }`}>
-             <div className="w-2 h-2 bg-[#C5A059] rounded-full animate-pulse"></div>
+        {!isLit && (
+          <div 
+            className="absolute inset-x-[-100px] inset-y-0 cursor-pointer group"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            {/* Interaction Cue */}
+            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 border border-[#C5A059]/40 rounded-full flex items-center justify-center transition-all duration-700 ${
+              isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+            }`}>
+               <div className="w-2 h-2 bg-[#C5A059] rounded-full animate-pulse"></div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* 4. Floor Reflection */}
@@ -97,7 +103,7 @@ const Home: React.FC = () => {
       }`}></div>
 
       {/* 5. Instruction Text */}
-      <div className={`absolute bottom-16 left-0 w-full text-center z-[60] transition-all duration-1000 ${
+      <div className={`absolute bottom-16 left-0 w-full text-center z-[100] transition-all duration-1000 ${
         isLit ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
       }`}>
         <div className="flex flex-col items-center gap-5">
@@ -107,7 +113,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* 6. Activation Flash */}
-      <div className={`absolute inset-0 bg-white z-[100] pointer-events-none transition-opacity duration-300 ${
+      <div className={`absolute inset-0 bg-white z-[200] pointer-events-none transition-opacity duration-300 ${
         isLit ? 'opacity-0' : 'hidden'
       }`}></div>
     </div>
