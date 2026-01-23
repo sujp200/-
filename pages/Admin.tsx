@@ -64,7 +64,15 @@ const Admin: React.FC = () => {
       setAboutContent(JSON.parse(localStorage.getItem('bbeoggugi_about') || '{"mainTitle":"Art, Made\\nLivable","subtitle":"BBEOGGUGI Studio","descKr1":"","descKr2":"","descEn":"","mainImage":"","addressKr":"","addressEn":""}'));
       setSpaceHeader(JSON.parse(localStorage.getItem('bbeoggugi_space_header') || '{"title":"Space Archive","subtitle":"Timeless Architectural Dialogue"}'));
       setContactSettings(JSON.parse(localStorage.getItem('bbeoggugi_contact_settings') || '{"title":"Inquiry & Collaboration","subtitle":"Connect with BBEOGGUGI Studio","visibleFields":["address","size","schedule","budget","referral"]}'));
-      setCareerContent(JSON.parse(localStorage.getItem('bbeoggugi_career_content') || '{"mainTitle":"","mainImage":"","descKr":"","descEn":"","coreValues":[],"benefits":[],"positions":[]}'));
+      
+      const defaultCareer = { 
+        mainTitle: '', mainImage: '', descKr: '', descEn: '', coreValues: [], benefits: [], 
+        positions: [
+          { title: 'Designer', subTitle: '경력 3년 이상', type: 'Full-time / Senior', desc: '하이엔드 주거 및 상업 공간 경험자.' },
+          { title: 'Project Director', subTitle: '영상/마케팅', type: 'Full-time / Director', desc: '영상 제작 및 브랜드 마케팅 가능자. 브랜드의 가치를 영상으로 담아내고 소통할 수 있는 분을 찾습니다.' }
+        ] 
+      };
+      setCareerContent(JSON.parse(localStorage.getItem('bbeoggugi_career_content') || JSON.stringify(defaultCareer)));
     } catch (e) { console.error("Load error:", e); }
   };
 
@@ -146,6 +154,21 @@ const Admin: React.FC = () => {
         if (p.id !== projectId) return p;
         if (type === 'gallery') return { ...p, images: p.images.filter((_, i) => i !== imgIdx) };
         return { ...p, floorPlans: p.floorPlans.filter((_, i) => i !== imgIdx) };
+      });
+      persistData('bbeoggugi_projects', next);
+      return next;
+    });
+  };
+
+  const reorderImage = (projectId: string, imgIdx: number, direction: 'left' | 'right') => {
+    setProjects(prev => {
+      const next = prev.map(p => {
+        if (p.id !== projectId) return p;
+        const newImages = [...p.images];
+        const targetIdx = direction === 'left' ? imgIdx - 1 : imgIdx + 1;
+        if (targetIdx < 0 || targetIdx >= newImages.length) return p;
+        [newImages[imgIdx], newImages[targetIdx]] = [newImages[targetIdx], newImages[imgIdx]];
+        return { ...p, images: newImages };
       });
       persistData('bbeoggugi_projects', next);
       return next;
@@ -270,28 +293,18 @@ const Admin: React.FC = () => {
                           </div>
 
                           <div className="space-y-6">
-                             <label className="text-[10px] font-black uppercase text-gray-400 border-b pb-1 block">Floor Plans</label>
-                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {p.floorPlans.map((fp, fpIdx) => (
-                                  <div key={fpIdx} className="relative group border bg-gray-50 aspect-video flex items-center justify-center">
-                                     <img src={fp} className="max-w-full max-h-full object-contain" alt="" />
-                                     <button onClick={() => removeProjectImage(p.id, fpIdx, 'floorPlan')} className="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity">×</button>
-                                  </div>
-                                ))}
-                                <input type="file" id={`plan-up-input-${p.id}`} className="hidden" accept="image/*" onChange={e => handleProjectFileUpload(e, p.id, 'floorPlan')} />
-                                <label htmlFor={`plan-up-input-${p.id}`} className="border-2 border-dashed flex flex-col items-center justify-center text-[10px] text-gray-300 hover:text-black transition-colors aspect-video font-black uppercase cursor-pointer">+ Add Plan</label>
-                             </div>
-                          </div>
-
-                          <div className="space-y-6">
-                             <label className="text-[10px] font-black uppercase text-gray-400 border-b pb-1 block">Gallery Images</label>
+                             <label className="text-[10px] font-black uppercase text-gray-400 border-b pb-1 block">Gallery Images (Sortable)</label>
                              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                                 {p.images.map((img, imgIdx) => (
                                   <div key={imgIdx} className="relative group border rounded-sm overflow-hidden bg-gray-50">
                                      <img src={img} className="w-full aspect-[3/4] object-cover" alt="" />
-                                     <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity">
-                                        <button onClick={() => setAsMainImage(p.id, img)} className="bg-white text-black px-3 py-1 text-[8px] font-black rounded-full uppercase hover:bg-yellow-400">Set as Main</button>
-                                        <button onClick={() => removeProjectImage(p.id, imgIdx, 'gallery')} className="bg-red-500 p-2 text-white text-xs rounded-full hover:bg-red-600">×</button>
+                                     <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity p-2 text-center">
+                                        <div className="flex gap-1 mb-2">
+                                          <button onClick={() => reorderImage(p.id, imgIdx, 'left')} className="bg-white/20 text-white w-8 h-8 rounded-full hover:bg-white hover:text-black">←</button>
+                                          <button onClick={() => reorderImage(p.id, imgIdx, 'right')} className="bg-white/20 text-white w-8 h-8 rounded-full hover:bg-white hover:text-black">→</button>
+                                        </div>
+                                        <button onClick={() => setAsMainImage(p.id, img)} className="bg-white text-black px-3 py-1 text-[8px] font-black rounded-full uppercase mb-1">Set Main</button>
+                                        <button onClick={() => removeProjectImage(p.id, imgIdx, 'gallery')} className="bg-red-500 text-white px-3 py-1 text-[8px] font-black rounded-full uppercase">Remove</button>
                                      </div>
                                   </div>
                                 ))}
@@ -304,6 +317,48 @@ const Admin: React.FC = () => {
                       )}
                    </div>
                  ))}
+               </div>
+            </div>
+          )}
+
+          {activeTab === 'inquiries' && (
+            <div className="space-y-8">
+               <h3 className="kor-bold text-2xl mb-8">Client Inquiries</h3>
+               <div className="border rounded-sm overflow-hidden bg-white shadow-sm">
+                  <table className="w-full text-left text-xs">
+                     <thead className="bg-gray-50 uppercase text-gray-400 font-black border-b">
+                       <tr><th className="p-4">Date</th><th className="p-4">Name</th><th className="p-4">Type</th><th className="p-4 text-right">Action</th></tr>
+                     </thead>
+                     <tbody className="divide-y">
+                       {inquiries.map(inq => (
+                         <React.Fragment key={inq.id}>
+                          <tr onClick={() => setExpandedInquiryId(expandedInquiryId === inq.id ? null : inq.id)} className={`cursor-pointer transition-colors ${expandedInquiryId === inq.id ? 'bg-gray-50' : 'hover:bg-gray-50/50'}`}>
+                            <td className="p-4 text-gray-400 italic">{new Date(inq.date).toLocaleDateString()}</td>
+                            <td className="p-4 kor-bold">{inq.name}</td>
+                            <td className="p-4 uppercase"><span className="border px-2 py-0.5 rounded-sm bg-white text-[9px]">{inq.type}</span></td>
+                            <td className="p-4 text-right">
+                                <button onClick={(e) => { e.stopPropagation(); if(confirm('삭제하시겠습니까?')) { const next = inquiries.filter(i => i.id !== inq.id); setInquiries(next); persistData('bbeoggugi_inquiries', next); } }} className="text-red-400 font-bold hover:underline px-4">Delete</button>
+                            </td>
+                          </tr>
+                          {expandedInquiryId === inq.id && (
+                            <tr>
+                              <td colSpan={4} className="p-8 bg-gray-50 border-b">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                  <div><label className="text-[9px] uppercase font-black text-gray-400">Phone</label><p className="text-sm kor-bold">{inq.phone || '-'}</p></div>
+                                  <div><label className="text-[9px] uppercase font-black text-gray-400">Email</label><p className="text-sm kor-bold">{inq.email || '-'}</p></div>
+                                  <div><label className="text-[9px] uppercase font-black text-gray-400">Project Type</label><p className="text-sm kor-bold">{inq.type || '-'}</p></div>
+                                  <div><label className="text-[9px] uppercase font-black text-gray-400">Address</label><p className="text-sm kor-bold">{inq.address || '-'}</p></div>
+                                  <div><label className="text-[9px] uppercase font-black text-gray-400">Size</label><p className="text-sm kor-bold">{inq.size || '-'}</p></div>
+                                  <div><label className="text-[9px] uppercase font-black text-gray-400">Budget</label><p className="text-sm kor-bold">{inq.budget || '-'}</p></div>
+                                  <div className="col-span-full"><label className="text-[9px] uppercase font-black text-gray-400">Message</label><p className="text-sm kor-bold whitespace-pre-wrap mt-2 p-4 bg-white border">{inq.content || inq.message || 'No message provided.'}</p></div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                         </React.Fragment>
+                       ))}
+                     </tbody>
+                  </table>
                </div>
             </div>
           )}
@@ -440,31 +495,6 @@ const Admin: React.FC = () => {
                        <button onClick={() => { persistData('bbeoggugi_space_header', spaceHeader); alert('Archive 헤더 저장됨'); }} className="w-full bg-black text-white py-4 font-black uppercase text-[10px]">Save Space Header</button>
                     </div>
                   )}
-               </div>
-            </div>
-          )}
-
-          {activeTab === 'inquiries' && (
-            <div className="space-y-8">
-               <h3 className="kor-bold text-2xl mb-8">Client Inquiries</h3>
-               <div className="border rounded-sm overflow-hidden bg-white shadow-sm">
-                  <table className="w-full text-left text-xs">
-                     <thead className="bg-gray-50 uppercase text-gray-400 font-black border-b">
-                       <tr><th className="p-4">Date</th><th className="p-4">Name</th><th className="p-4">Type</th><th className="p-4 text-right">Action</th></tr>
-                     </thead>
-                     <tbody className="divide-y">
-                       {inquiries.map(inq => (
-                         <tr key={inq.id} className="hover:bg-gray-50/50">
-                           <td className="p-4 text-gray-400 italic">{new Date(inq.date).toLocaleDateString()}</td>
-                           <td className="p-4 kor-bold">{inq.name}</td>
-                           <td className="p-4 uppercase"><span className="border px-2 py-0.5 rounded-sm bg-white text-[9px]">{inq.type}</span></td>
-                           <td className="p-4 text-right">
-                               <button onClick={() => { if(confirm('삭제하시겠습니까?')) { const next = inquiries.filter(i => i.id !== inq.id); setInquiries(next); persistData('bbeoggugi_inquiries', next); } }} className="text-red-400 font-bold hover:underline px-4">Delete</button>
-                           </td>
-                         </tr>
-                       ))}
-                     </tbody>
-                  </table>
                </div>
             </div>
           )}

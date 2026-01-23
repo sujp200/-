@@ -26,7 +26,7 @@ const Careers: React.FC = () => {
     ],
     positions: [
       { id: '1', title: 'Designer', subTitle: '경력 3년 이상', type: 'Full-time / Senior', desc: '하이엔드 주거 및 상업 공간 경험자. 설계부터 디자인 제안까지 전 과정을 주도할 수 있는 분을 찾습니다.' },
-      { id: '2', title: 'Project Director', subTitle: '경력 3년 이상', type: 'Full-time / Director', desc: '현장 관리 및 프로젝트 총괄 가능자. 현장에서의 디테일한 소통과 마감 퀄리티를 책임질 수 있는 분을 찾습니다.' },
+      { id: '2', title: 'Project Director', subTitle: '영상/브랜드 마케팅', type: 'Full-time / Director', desc: '영상 제작 및 브랜드 마케팅 가능자. 뻐꾸기의 브랜드 가치를 영상으로 담아내고 소통할 수 있는 분을 찾습니다.' },
       { id: '3', title: '신입 인턴', subTitle: 'New Intern', type: 'Internship', desc: '열정적이고 감각적인 신입 디자이너. 뻐꾸기의 철학을 함께 배우고 성장할 예비 디자이너를 환영합니다.' }
     ]
   });
@@ -39,6 +39,7 @@ const Careers: React.FC = () => {
     const saved = localStorage.getItem('bbeoggugi_career_content');
     if (saved) {
         const parsed = JSON.parse(saved);
+        // Ensure default fallback if saved data is old
         if (!parsed.benefits) parsed.benefits = content.benefits;
         if (!parsed.positions) parsed.positions = content.positions;
         if (!parsed.coreValues) parsed.coreValues = content.coreValues;
@@ -65,7 +66,6 @@ const Careers: React.FC = () => {
 
   return (
     <div className="px-8 max-w-[1400px] mx-auto pb-40">
-      {/* Hero Section */}
       <section className="mb-40 pt-10">
         <div className="flex flex-col md:flex-row justify-between items-start gap-12">
            <div className="max-w-2xl">
@@ -83,7 +83,6 @@ const Careers: React.FC = () => {
         </div>
       </section>
 
-      {/* Core Values Section (인재상) - 요청사항: 복지혜택보다 위에 배치 */}
       {content.coreValues?.length > 0 && (
         <section className="mb-40">
           <div className="flex items-center gap-6 mb-20">
@@ -104,7 +103,6 @@ const Careers: React.FC = () => {
         </section>
       )}
 
-      {/* Benefits Section */}
       {content.benefits?.length > 0 && (
         <section className="mb-40">
           <div className="flex items-center gap-6 mb-20">
@@ -122,7 +120,6 @@ const Careers: React.FC = () => {
         </section>
       )}
 
-      {/* Positions Section - 요청사항: 디자이너/PD 별도 칸 배치, 경력3년 작게 밑에 */}
       <section className="mb-40">
         <div className="flex items-center gap-6 mb-20">
           <h3 className="eng-text-secondary text-[10px] uppercase font-bold text-[#111111] tracking-[0.4em]">OPEN POSITIONS (채용 공고)</h3>
@@ -147,7 +144,6 @@ const Careers: React.FC = () => {
            ))}
         </div>
 
-        {/* Application Form */}
         <div ref={formRef} className="max-w-4xl mx-auto bg-gray-50 p-12 md:p-20 rounded-sm shadow-sm border border-gray-100 animate-in fade-in duration-1000">
            <div className="mb-12">
              <h3 className="eng-text text-xs font-black uppercase tracking-[0.4em] text-gray-300 mb-2">Application Form</h3>
