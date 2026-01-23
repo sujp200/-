@@ -196,10 +196,10 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Journal Section with Large Icons below the Map */}
+      {/* Social Network Service Section with Large Icons below the Map */}
       <section className="mb-40 pt-20 border-t border-gray-100">
         <div className="flex flex-col items-center text-center mb-24">
-           <h3 className="eng-text text-[10px] font-black uppercase tracking-[0.8em] text-gray-300 mb-6">JOURNAL & ARCHIVE</h3>
+           <h3 className="eng-text text-[10px] font-black uppercase tracking-[0.6em] text-gray-300 mb-6">SOCIAL NETWORK SERVICE</h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">

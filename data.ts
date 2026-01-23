@@ -100,7 +100,7 @@ export const team: TeamMember[] = [
 ];
 
 export const channels: Channel[] = [
+  { id: 'yt', name: 'YouTube', icon: 'Youtube', url: 'https://www.youtube.com/@bbeoggugi_homes', thumbnail: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1200&auto=format&fit=crop' },
   { id: 'insta', name: 'Instagram', icon: 'Instagram', url: 'https://www.instagram.com/bbeoggugi_official/', thumbnail: 'https://images.unsplash.com/photo-1611262588024-d12430b98920?q=80&w=1200&auto=format&fit=crop' },
   { id: 'blog', name: 'Naver Blog', icon: 'Book', url: 'https://blog.naver.com/lali8122', thumbnail: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1200&auto=format&fit=crop' },
-  { id: 'yt', name: 'YouTube', icon: 'Youtube', url: 'https://www.youtube.com/@bbeoggugi_homes', thumbnail: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?q=80&w=1200&auto=format&fit=crop' },
 ];

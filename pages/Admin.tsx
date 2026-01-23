@@ -116,7 +116,6 @@ const Admin: React.FC = () => {
     } else { alert('비밀번호가 일치하지 않습니다.'); }
   };
 
-  // --- Projects/Inquiries Deletion Logic (Perfectly Kept) ---
   const handleDeleteSelectedProjects = () => {
     if (selectedProjectIds.length === 0) return;
     if (window.confirm(`${selectedProjectIds.length}개의 프로젝트를 정말 삭제하시겠습니까?`)) {
@@ -159,7 +158,7 @@ const Admin: React.FC = () => {
     persistData('bbeoggugi_projects', next);
   };
 
-  const handleProjectFileUpload = (e: React.ChangeEvent<HTMLInputElement>, projectId: string, type: 'main' | 'gallery') => {
+  const handleProjectFileUpload = (e: React.ChangeEvent<HTMLInputElement>, projectId: string, type: 'main' | 'gallery' | 'floorPlans') => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     const processFile = (file: File) => new Promise<string>((resolve) => {
@@ -171,22 +170,24 @@ const Admin: React.FC = () => {
       const next = projects.map(p => {
         if (p.id !== projectId) return p;
         if (type === 'main') return { ...p, mainImage: base64s[0] };
-        return { ...p, images: [...p.images, ...base64s] };
+        if (type === 'gallery') return { ...p, images: [...p.images, ...base64s] };
+        if (type === 'floorPlans') return { ...p, floorPlans: [...(p.floorPlans || []), ...base64s] };
+        return p;
       });
       setProjects(next);
       persistData('bbeoggugi_projects', next);
     });
   };
 
-  const reorderImage = (e: React.MouseEvent, projectId: string, imgIdx: number, direction: 'left' | 'right') => {
+  const reorderImage = (e: React.MouseEvent, projectId: string, imgIdx: number, direction: 'left' | 'right', type: 'gallery' | 'floorPlans' = 'gallery') => {
     e.stopPropagation();
     const next = projects.map(p => {
       if (p.id !== projectId) return p;
-      const newImages = [...p.images];
+      const targetArray = type === 'gallery' ? [...p.images] : [...(p.floorPlans || [])];
       const targetIdx = direction === 'left' ? imgIdx - 1 : imgIdx + 1;
-      if (targetIdx < 0 || targetIdx >= newImages.length) return p;
-      [newImages[imgIdx], newImages[targetIdx]] = [newImages[targetIdx], newImages[imgIdx]];
-      return { ...p, images: newImages };
+      if (targetIdx < 0 || targetIdx >= targetArray.length) return p;
+      [targetArray[imgIdx], targetArray[targetIdx]] = [targetArray[targetIdx], targetArray[imgIdx]];
+      return type === 'gallery' ? { ...p, images: targetArray } : { ...p, floorPlans: targetArray };
     });
     setProjects(next);
     persistData('bbeoggugi_projects', next);
@@ -220,7 +221,6 @@ const Admin: React.FC = () => {
     persistData(storageKey, next);
   };
 
-  // --- Dynamic Contact Fields ---
   const addNewContactField = () => {
     if (!newFieldName.trim()) return;
     if (contactSettings.availableFields.includes(newFieldName.trim())) {
@@ -346,6 +346,29 @@ const Admin: React.FC = () => {
                                 </div>
                              </div>
                           </div>
+
+                          {/* NEW: Floor Plans Section */}
+                          <div className="space-y-8 pt-8 border-t">
+                             <label className="text-[10px] font-black uppercase text-gray-400 block tracking-[0.2em]">Floor Plans (도면 관리 - 여러 장 가능)</label>
+                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                {(p.floorPlans || []).map((plan, planIdx) => (
+                                  <div key={planIdx} className="relative group border bg-gray-50 aspect-[4/3] overflow-hidden">
+                                     <img src={plan} className="w-full h-full object-contain mix-blend-multiply" />
+                                     <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity p-2 text-center">
+                                        <div className="flex gap-2">
+                                           <button onClick={(e) => reorderImage(e, p.id, planIdx, 'left', 'floorPlans')} className="bg-white/10 text-white w-6 h-6 border rounded-full hover:bg-white hover:text-black">←</button>
+                                           <button onClick={(e) => reorderImage(e, p.id, planIdx, 'right', 'floorPlans')} className="bg-white/10 text-white w-6 h-6 border rounded-full hover:bg-white hover:text-black">→</button>
+                                        </div>
+                                        <span className="text-[8px] text-white font-black uppercase">{planIdx + 1}F Plan</span>
+                                        <button onClick={() => { const next = projects.map(proj => proj.id === p.id ? {...proj, floorPlans: proj.floorPlans.filter((_, i) => i !== planIdx)} : proj); setProjects(next); persistData('bbeoggugi_projects', next); }} className="text-red-400 text-[8px] font-black uppercase mt-1">Delete</button>
+                                     </div>
+                                  </div>
+                                ))}
+                                <input type="file" id={`floorplan-up-${p.id}`} className="hidden" multiple accept="image/*" onChange={e => handleProjectFileUpload(e, p.id, 'floorPlans')} />
+                                <label htmlFor={`floorplan-up-${p.id}`} className="border-2 border-dashed flex flex-col items-center justify-center text-[10px] text-gray-300 hover:text-black hover:border-black transition-all aspect-[4/3] font-black uppercase cursor-pointer">+ Add Floor Plan</label>
+                             </div>
+                          </div>
+
                           <div className="space-y-8 pt-8 border-t">
                              <label className="text-[10px] font-black uppercase text-gray-400 block tracking-[0.2em]">Gallery (Sortable Images)</label>
                              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
