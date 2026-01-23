@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { projects as initialProjects, team as initialTeam, channels as initialChannels } from '../data';
 import { Project, TeamMember, Channel } from '../types';
@@ -31,7 +32,7 @@ const Admin: React.FC = () => {
   const [expandedInquiryId, setExpandedInquiryId] = useState<number | null>(null);
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   
-  // Selection States for Manage Mode (Keep logic as requested)
+  // Selection States for Manage Mode
   const [isProjectManageMode, setIsProjectManageMode] = useState(false);
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [isInquiryManageMode, setIsInquiryManageMode] = useState(false);
@@ -50,7 +51,16 @@ const Admin: React.FC = () => {
   const [aboutContent, setAboutContent] = useState<any>({ mainTitle: '', subtitle: '', descKr1: '', descKr2: '', descEn: '', mainImage: '', addressKr: '', addressEn: '' });
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [spaceHeader, setSpaceHeader] = useState<any>({ title: '', subtitle: '' });
-  const [contactSettings, setContactSettings] = useState<any>({ title: '', subtitle: '', visibleFields: [] });
+  
+  // Contact Settings with Dynamic Fields
+  const [contactSettings, setContactSettings] = useState<any>({ 
+    title: '', 
+    subtitle: '', 
+    visibleFields: [],
+    availableFields: ['address', 'size', 'schedule', 'budget', 'referral']
+  });
+  const [newFieldName, setNewFieldName] = useState('');
+
   const [careerContent, setCareerContent] = useState<any>({ mainTitle: '', mainImage: '', descKr: '', descEn: '', coreValues: [], benefits: [], positions: [] });
   const [journalChannels, setJournalChannels] = useState<Channel[]>([]);
 
@@ -80,7 +90,11 @@ const Admin: React.FC = () => {
       if (savedSpace) setSpaceHeader(JSON.parse(savedSpace));
 
       const savedContact = localStorage.getItem('bbeoggugi_contact_settings');
-      if (savedContact) setContactSettings(JSON.parse(savedContact));
+      if (savedContact) {
+        const parsed = JSON.parse(savedContact);
+        if (!parsed.availableFields) parsed.availableFields = ['address', 'size', 'schedule', 'budget', 'referral'];
+        setContactSettings(parsed);
+      }
 
       const savedCareer = localStorage.getItem('bbeoggugi_career_content');
       if (savedCareer) setCareerContent(JSON.parse(savedCareer));
@@ -102,7 +116,7 @@ const Admin: React.FC = () => {
     } else { alert('비밀번호가 일치하지 않습니다.'); }
   };
 
-  // --- Projects/Inquiries Deletion Logic (STAY UNCHANGED) ---
+  // --- Projects/Inquiries Deletion Logic (Perfectly Kept) ---
   const handleDeleteSelectedProjects = () => {
     if (selectedProjectIds.length === 0) return;
     if (window.confirm(`${selectedProjectIds.length}개의 프로젝트를 정말 삭제하시겠습니까?`)) {
@@ -135,13 +149,14 @@ const Admin: React.FC = () => {
     setSelectedInquiryIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
-  // --- File Upload Helper ---
-  const handleSingleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (base64: string) => void) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => callback(reader.result as string);
-    reader.readAsDataURL(file);
+  const updateProjectField = (id: string, field: string, value: any, nestedKey?: string) => {
+    const next = projects.map(p => {
+      if (p.id !== id) return p;
+      if (field === 'info_nested' && nestedKey) return { ...p, info: { ...p.info, [nestedKey]: value } };
+      return { ...p, [field]: value };
+    });
+    setProjects(next);
+    persistData('bbeoggugi_projects', next);
   };
 
   const handleProjectFileUpload = (e: React.ChangeEvent<HTMLInputElement>, projectId: string, type: 'main' | 'gallery') => {
@@ -163,26 +178,6 @@ const Admin: React.FC = () => {
     });
   };
 
-  // --- Project Update Helper ---
-  // Fix for error: Cannot find name 'updateProjectField'
-  const updateProjectField = (id: string, field: string, value: any, nestedKey?: string) => {
-    const next = projects.map(p => {
-      if (p.id !== id) return p;
-      if (field === 'info_nested' && nestedKey) {
-        return { ...p, info: { ...p.info, [nestedKey]: value } };
-      }
-      return { ...p, [field]: value };
-    });
-    setProjects(next);
-    persistData('bbeoggugi_projects', next);
-  };
-
-  const removeProjectImage = (projectId: string, imgIdx: number) => {
-    const next = projects.map(p => p.id === projectId ? { ...p, images: p.images.filter((_, i) => i !== imgIdx) } : p);
-    setProjects(next);
-    persistData('bbeoggugi_projects', next);
-  };
-
   const reorderImage = (e: React.MouseEvent, projectId: string, imgIdx: number, direction: 'left' | 'right') => {
     e.stopPropagation();
     const next = projects.map(p => {
@@ -197,15 +192,14 @@ const Admin: React.FC = () => {
     persistData('bbeoggugi_projects', next);
   };
 
-  const setAsMainImage = (e: React.MouseEvent, projectId: string, imageUrl: string) => {
-    e.stopPropagation();
-    const next = projects.map(p => p.id === projectId ? { ...p, mainImage: imageUrl } : p);
-    setProjects(next);
-    persistData('bbeoggugi_projects', next);
-    alert('메인 포스터가 변경되었습니다.');
+  const handleSingleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (base64: string) => void) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => callback(reader.result as string);
+    reader.readAsDataURL(file);
   };
 
-  // --- Career & About List Management ---
   const addItem = (state: any, setState: any, key: string, newItem: any, storageKey: string) => {
     const next = { ...state, [key]: [...(state[key] || []), newItem] };
     setState(next);
@@ -224,6 +218,37 @@ const Admin: React.FC = () => {
     const next = { ...state, [key]: state[key].filter((_: any, i: number) => i !== index) };
     setState(next);
     persistData(storageKey, next);
+  };
+
+  // --- Dynamic Contact Fields ---
+  const addNewContactField = () => {
+    if (!newFieldName.trim()) return;
+    if (contactSettings.availableFields.includes(newFieldName.trim())) {
+      alert('이미 존재하는 항목입니다.');
+      return;
+    }
+    const next = {
+      ...contactSettings,
+      availableFields: [...contactSettings.availableFields, newFieldName.trim()],
+      visibleFields: [...contactSettings.visibleFields, newFieldName.trim()]
+    };
+    setContactSettings(next);
+    persistData('bbeoggugi_contact_settings', next);
+    setNewFieldName('');
+  };
+
+  const removeContactField = (fieldName: string) => {
+    if (['address', 'size', 'schedule', 'budget', 'referral'].includes(fieldName)) {
+      alert('기본 시스템 항목은 삭제할 수 없습니다.');
+      return;
+    }
+    const next = {
+      ...contactSettings,
+      availableFields: contactSettings.availableFields.filter((f: string) => f !== fieldName),
+      visibleFields: contactSettings.visibleFields.filter((f: string) => f !== fieldName)
+    };
+    setContactSettings(next);
+    persistData('bbeoggugi_contact_settings', next);
   };
 
   if (!isAuthorized) {
@@ -332,8 +357,8 @@ const Admin: React.FC = () => {
                                            <button onClick={(e) => reorderImage(e, p.id, imgIdx, 'left')} className="bg-white/10 text-white w-6 h-6 border rounded-full hover:bg-white hover:text-black">←</button>
                                            <button onClick={(e) => reorderImage(e, p.id, imgIdx, 'right')} className="bg-white/10 text-white w-6 h-6 border rounded-full hover:bg-white hover:text-black">→</button>
                                         </div>
-                                        <button onClick={(e) => setAsMainImage(e, p.id, img)} className="text-[7px] font-black uppercase bg-white px-2 py-1 rounded-full mt-1">Set as Poster</button>
-                                        <button onClick={() => removeProjectImage(p.id, imgIdx)} className="text-red-400 text-[8px] font-black uppercase mt-1">Delete</button>
+                                        <button onClick={(e) => { e.stopPropagation(); updateProjectField(p.id, 'mainImage', img); alert('Poster changed.'); }} className="text-[7px] font-black uppercase bg-white px-2 py-1 rounded-full mt-1">Set as Poster</button>
+                                        <button onClick={() => { const next = projects.map(proj => proj.id === p.id ? {...proj, images: proj.images.filter((_, i) => i !== imgIdx)} : proj); setProjects(next); persistData('bbeoggugi_projects', next); }} className="text-red-400 text-[8px] font-black uppercase mt-1">Delete</button>
                                      </div>
                                   </div>
                                 ))}
@@ -341,7 +366,7 @@ const Admin: React.FC = () => {
                                 <label htmlFor={`gallery-up-${p.id}`} className="border-2 border-dashed flex flex-col items-center justify-center text-[10px] text-gray-300 hover:text-black hover:border-black transition-all aspect-[3/4] font-black uppercase cursor-pointer">+ Add Images</label>
                              </div>
                           </div>
-                          <button onClick={() => { setEditingProjectId(null); alert('저장되었습니다.'); }} className="w-full bg-black text-white py-6 font-black uppercase text-[11px] tracking-[0.5em] shadow-xl">Close Editor</button>
+                          <button onClick={() => { setEditingProjectId(null); alert('Saved.'); }} className="w-full bg-black text-white py-6 font-black uppercase text-[11px] tracking-[0.5em] shadow-xl">Close Editor</button>
                         </div>
                       )}
                    </div>
@@ -393,6 +418,9 @@ const Admin: React.FC = () => {
                                       <div className="space-y-1"><label className="text-[8px] uppercase font-black text-gray-300 tracking-widest">Phone</label><p className="text-sm kor-bold border-b pb-2">{inq.phone || '-'}</p></div>
                                       <div className="space-y-1"><label className="text-[8px] uppercase font-black text-gray-300 tracking-widest">Email</label><p className="text-sm kor-bold border-b pb-2">{inq.email || '-'}</p></div>
                                       <div className="space-y-1"><label className="text-[8px] uppercase font-black text-gray-300 tracking-widest">Address</label><p className="text-sm kor-bold border-b pb-2">{inq.address || '-'}</p></div>
+                                      {inq.customFields && Object.entries(inq.customFields).map(([key, val]) => (
+                                        <div key={key} className="space-y-1"><label className="text-[8px] uppercase font-black text-gray-300 tracking-widest">{key}</label><p className="text-sm kor-bold border-b pb-2">{val || '-'}</p></div>
+                                      ))}
                                     </div>
                                     <div className="space-y-2"><label className="text-[8px] uppercase font-black text-gray-300 tracking-widest">Message</label><p className="text-sm leading-relaxed border-l-4 border-black pl-4 py-2 bg-gray-50/50 whitespace-pre-wrap">{inq.content || inq.message || 'None'}</p></div>
                                   </div>
@@ -426,7 +454,7 @@ const Admin: React.FC = () => {
                     </label>
                   </div>
                </div>
-               <button onClick={() => { persistData('admin_design_settings', designSettings); alert('저장되었습니다.'); window.location.reload(); }} className="w-full bg-black text-white py-6 text-[11px] font-black uppercase tracking-[0.5em] shadow-2xl">Apply System Update</button>
+               <button onClick={() => { persistData('admin_design_settings', designSettings); alert('Applied.'); window.location.reload(); }} className="w-full bg-black text-white py-6 text-[11px] font-black uppercase tracking-[0.5em] shadow-2xl">Apply System Update</button>
             </div>
           )}
 
@@ -452,7 +480,6 @@ const Admin: React.FC = () => {
                              </div>
                           </div>
                        </div>
-                       
                        <div className="space-y-10">
                           <h4 className="text-[10px] font-black uppercase border-l-4 border-black pl-4">Team Members</h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -466,41 +493,67 @@ const Admin: React.FC = () => {
                              <button onClick={() => setTeam([...team, {id: Date.now().toString(), name:'', role:'', avatar:''}])} className="border-2 border-dashed py-4 text-[10px] font-black uppercase text-gray-300 hover:text-black">+ Add Member</button>
                           </div>
                        </div>
-
                        <div className="space-y-6">
                           <h4 className="text-[10px] font-black uppercase border-l-4 border-black pl-4">Location Info</h4>
                           <input value={aboutContent.addressKr} onChange={e => setAboutContent({...aboutContent, addressKr: e.target.value})} className="w-full border-b py-3 text-lg kor-bold outline-none" placeholder="Address (KR)" />
                        </div>
-                       <button onClick={() => { persistData('bbeoggugi_about', aboutContent); persistData('bbeoggugi_team', team); alert('About 설정이 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px]">Save About Settings</button>
-                    </div>
-                  )}
-
-                  {settingsSubTab === 'space' && (
-                    <div className="space-y-12">
-                       <div className="grid grid-cols-1 gap-12">
-                          <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase">Archive Title</label><input value={spaceHeader.title} onChange={e => setSpaceHeader({...spaceHeader, title: e.target.value})} className="w-full border-b p-3 text-2xl kor-bold outline-none focus:border-black bg-transparent" /></div>
-                          <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase">Archive Subtitle</label><input value={spaceHeader.subtitle} onChange={e => setSpaceHeader({...spaceHeader, subtitle: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
-                       </div>
-                       <button onClick={() => { persistData('bbeoggugi_space_header', spaceHeader); alert('저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px]">Save Space Settings</button>
+                       <button onClick={() => { persistData('bbeoggugi_about', aboutContent); persistData('bbeoggugi_team', team); alert('Saved.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px]">Save About Settings</button>
                     </div>
                   )}
 
                   {settingsSubTab === 'contact' && (
                     <div className="space-y-12">
-                       <div className="space-y-4"><label className="text-[9px] font-black text-gray-400 uppercase">Visible Form Fields (노출 여부)</label>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                             {['address', 'size', 'schedule', 'budget', 'referral'].map(field => (
-                               <label key={field} className="flex items-center gap-3 border p-4 cursor-pointer hover:bg-gray-50">
-                                  <input type="checkbox" checked={contactSettings.visibleFields.includes(field)} onChange={e => {
-                                    const next = e.target.checked ? [...contactSettings.visibleFields, field] : contactSettings.visibleFields.filter((f:string) => f !== field);
-                                    setContactSettings({...contactSettings, visibleFields: next});
-                                  }} className="w-4 h-4 accent-black" />
-                                  <span className="text-[11px] font-bold uppercase">{field}</span>
-                               </label>
-                             ))}
-                          </div>
+                       <div className="space-y-8 border-b pb-8">
+                         <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Custom Inquiry Fields (항목 체크 & 신규 추가)</h4>
+                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {contactSettings.availableFields.map((field: string) => (
+                              <div key={field} className="flex flex-col gap-1">
+                                <label className={`flex items-center gap-3 border p-4 cursor-pointer hover:bg-gray-50 transition-colors ${contactSettings.visibleFields.includes(field) ? 'border-black' : 'border-gray-100'}`}>
+                                  <input 
+                                    type="checkbox" 
+                                    checked={contactSettings.visibleFields.includes(field)} 
+                                    onChange={e => {
+                                      const next = e.target.checked 
+                                        ? [...contactSettings.visibleFields, field] 
+                                        : contactSettings.visibleFields.filter((f:string) => f !== field);
+                                      const updated = {...contactSettings, visibleFields: next};
+                                      setContactSettings(updated);
+                                      persistData('bbeoggugi_contact_settings', updated);
+                                    }} 
+                                    className="w-4 h-4 accent-black" 
+                                  />
+                                  <span className="text-[11px] font-bold uppercase truncate">{field}</span>
+                                </label>
+                                {!['address', 'size', 'schedule', 'budget', 'referral'].includes(field) && (
+                                  <button onClick={() => removeContactField(field)} className="text-[8px] text-red-400 uppercase font-black text-right pr-2">Remove</button>
+                                )}
+                              </div>
+                            ))}
+                         </div>
+                         <div className="mt-8 flex gap-4 max-w-md">
+                           <input 
+                              value={newFieldName} 
+                              onChange={e => setNewFieldName(e.target.value)} 
+                              className="flex-grow border-b py-2 text-xs outline-none focus:border-black bg-transparent" 
+                              placeholder="항목 이름 (예: 선호 스타일)" 
+                           />
+                           <button onClick={addNewContactField} className="bg-black text-white px-6 py-2 text-[10px] font-black uppercase tracking-widest transition-transform hover:scale-105">+ Add New Box</button>
+                         </div>
                        </div>
-                       <button onClick={() => { persistData('bbeoggugi_contact_settings', contactSettings); alert('저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px]">Save Contact Settings</button>
+                       <div className="space-y-4">
+                         <label className="text-[9px] font-black text-gray-400 uppercase">Page Header</label>
+                         <input value={contactSettings.title} onChange={e => {
+                           const next = {...contactSettings, title: e.target.value};
+                           setContactSettings(next);
+                           persistData('bbeoggugi_contact_settings', next);
+                         }} className="w-full border-b p-3 text-xl kor-bold outline-none" placeholder="Main Title" />
+                         <input value={contactSettings.subtitle} onChange={e => {
+                           const next = {...contactSettings, subtitle: e.target.value};
+                           setContactSettings(next);
+                           persistData('bbeoggugi_contact_settings', next);
+                         }} className="w-full border-b p-3 text-sm outline-none" placeholder="Subtitle" />
+                       </div>
+                       <button onClick={() => alert('Contact 설정이 저장되었습니다.')} className="w-full bg-black text-white py-5 font-black uppercase text-[10px]">Save Contact Settings</button>
                     </div>
                   )}
 
@@ -513,7 +566,7 @@ const Admin: React.FC = () => {
                              <div className="flex gap-6 items-center">
                                 <img src={careerContent.mainImage} className="w-20 h-28 object-cover border" />
                                 <input type="file" id="career-img" className="hidden" onChange={e => handleSingleFileUpload(e, base64 => setCareerContent({...careerContent, mainImage: base64}))} />
-                                <label htmlFor="career-img" className="text-[9px] font-black border p-4 cursor-pointer hover:bg-black hover:text-white transition-all uppercase">Upload New Photo</label>
+                                <label htmlFor="career-img" className="text-[9px] font-black border p-4 cursor-pointer hover:bg-black hover:text-white transition-all uppercase">Upload Photo</label>
                              </div>
                           </div>
                        </div>
@@ -569,11 +622,11 @@ const Admin: React.FC = () => {
 
                   {settingsSubTab === 'journal' && (
                     <div className="space-y-12">
-                       <h4 className="text-[10px] font-black uppercase border-l-4 border-black pl-4">Journal Channels (Links & Thumbnails)</h4>
+                       <h4 className="text-[10px] font-black uppercase border-l-4 border-black pl-4">Journal Channels</h4>
                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                           {journalChannels.map((ch, i) => (
                             <div key={ch.id} className="border p-8 bg-white space-y-6 shadow-sm">
-                               <div className="flex justify-between items-center"><span className="eng-text text-sm font-black uppercase tracking-widest">{ch.name}</span><div className={`w-2 h-2 rounded-full ${ch.id === 'blog' ? 'bg-[#2DB400]' : ch.id === 'yt' ? 'bg-[#FF0000]' : 'bg-black'}`}></div></div>
+                               <div className="flex justify-between items-center"><span className="eng-text text-sm font-black uppercase tracking-widest">{ch.name}</span></div>
                                <div className="space-y-4">
                                   <div className="aspect-square bg-gray-50 border relative overflow-hidden">
                                      <img src={ch.thumbnail} className="w-full h-full object-cover" />
@@ -589,7 +642,17 @@ const Admin: React.FC = () => {
                             </div>
                           ))}
                        </div>
-                       <button onClick={() => { persistData('bbeoggugi_journal_channels', journalChannels); alert('Journal 채널 정보가 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px]">Save Journal Settings</button>
+                       <button onClick={() => { persistData('bbeoggugi_journal_channels', journalChannels); alert('Saved.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px]">Save Journal Settings</button>
+                    </div>
+                  )}
+
+                  {settingsSubTab === 'space' && (
+                    <div className="space-y-12">
+                       <div className="grid grid-cols-1 gap-12">
+                          <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase">Archive Title</label><input value={spaceHeader.title} onChange={e => setSpaceHeader({...spaceHeader, title: e.target.value})} className="w-full border-b p-3 text-2xl kor-bold outline-none focus:border-black bg-transparent" /></div>
+                          <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase">Archive Subtitle</label><input value={spaceHeader.subtitle} onChange={e => setSpaceHeader({...spaceHeader, subtitle: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
+                       </div>
+                       <button onClick={() => { persistData('bbeoggugi_space_header', spaceHeader); alert('Saved.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px]">Save Space Settings</button>
                     </div>
                   )}
                </div>

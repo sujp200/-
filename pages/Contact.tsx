@@ -2,14 +2,15 @@
 import React, { useState, useEffect } from 'react';
 
 const Contact: React.FC = () => {
-  const [settings, setSettings] = useState({
+  const [settings, setSettings] = useState<any>({
     title: 'Inquiry & Collaboration',
     subtitle: 'Connect with BBEOGGUGI Studio',
     visibleFields: ['address', 'size', 'schedule', 'budget', 'referral']
   });
 
-  const [formData, setFormData] = useState({
-    name: '', phone: '', email: '', address: '', type: '', size: '', schedule: '', budget: '', content: '', referral: '', agreement: false
+  const [formData, setFormData] = useState<any>({
+    name: '', phone: '', email: '', address: '', type: '', size: '', schedule: '', budget: '', content: '', referral: '', agreement: false,
+    customFields: {}
   });
 
   const [submitted, setSubmitted] = useState(false);
@@ -21,10 +22,18 @@ const Contact: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as any;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-    }));
+    if (name.startsWith('custom_')) {
+      const fieldName = name.replace('custom_', '');
+      setFormData((prev: any) => ({
+        ...prev,
+        customFields: { ...prev.customFields, [fieldName]: value }
+      }));
+    } else {
+      setFormData((prev: any) => ({
+        ...prev,
+        [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+      }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -59,8 +68,8 @@ const Contact: React.FC = () => {
   return (
     <div className="px-8 max-w-[1400px] mx-auto py-10">
       <div className="mb-24 text-center">
-        <h2 className="text-4xl font-serif mb-4">{settings.title}</h2>
-        <p className="text-[10px] tracking-[0.6em] text-gray-400 uppercase font-bold">{settings.subtitle}</p>
+        <h2 className="text-4xl font-serif mb-4">{settings.title || 'Inquiry & Collaboration'}</h2>
+        <p className="text-[10px] tracking-[0.6em] text-gray-400 uppercase font-bold">{settings.subtitle || 'Connect with BBEOGGUGI Studio'}</p>
       </div>
 
       <form className="max-w-4xl mx-auto space-y-16 pb-20" onSubmit={handleSubmit}>
@@ -122,6 +131,23 @@ const Contact: React.FC = () => {
                 </select>
               </div>
             )}
+            
+            {/* Dynamic Custom Fields Rendering */}
+            {settings.visibleFields?.map((field: string) => {
+              if (['address', 'size', 'schedule', 'budget', 'referral'].includes(field)) return null;
+              return (
+                <div key={field} className="border-b border-gray-100 focus-within:border-black transition-colors">
+                  <label className="text-[9px] tracking-widest text-gray-400 uppercase block mb-2">{field}</label>
+                  <input 
+                    name={`custom_${field}`} 
+                    value={formData.customFields[field] || ''} 
+                    onChange={handleChange} 
+                    className="w-full bg-transparent py-2 text-xs outline-none" 
+                    placeholder="Please specify" 
+                  />
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -139,17 +165,11 @@ const Contact: React.FC = () => {
                  <p className="font-bold mb-1">▶ 개인정보의 수집 및 이용목적</p>
                  <p>- 서비스 이용에 따른 본인식별, 실명확인, 가입의사 확인, 연령제한 서비스 이용</p>
                  <p>- 고지사항 전달, 불만처리 의사소통 경로 확보, 물품배송 시 정확한 배송지 정보 확보</p>
-                 <p>- 신규 서비스 등 최신정보 안내 및 개인맞춤서비스 제공을 위한 자료</p>
                  <p>- 기타 원활한 양질의 서비스 제공 등</p>
                </div>
                <div>
                  <p className="font-bold mb-1">▶ 수집하는 개인정보의 항목</p>
-                 <p>- 이름, 이메일, 주민등록번호, 주소, 연락처, 핸드폰번호, 그 외 선택항목</p>
-               </div>
-               <div>
-                 <p className="font-bold mb-1">▶ 개인정보의 보유 및 이용기간</p>
-                 <p>- 원칙적으로 개인정보의 수집 또는 제공받은 목적 달성 시 지체 없이 파기합니다.</p>
-                 <p>- 다만, 원활한 서비스의 상담을 위해 상담 완료 후 내용을 3개월간 보유할 수 있으며 전자상거래에서의 소비자보호에 관한 법률 등 타법률에 의해 보존할 필요가 있는 경우에는 일정기간 보존합니다.</p>
+                 <p>- 이름, 이메일, 주소, 연락처, 핸드폰번호, 그 외 선택항목</p>
                </div>
              </div>
           </div>
