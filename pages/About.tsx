@@ -35,41 +35,8 @@ const About: React.FC = () => {
   ];
 
   return (
-    <div className="px-8 max-w-[1600px] mx-auto overflow-hidden relative">
-      {/* Social Icons at Top Right */}
-      <div className="absolute top-0 right-0 z-20 flex gap-4 pr-8 pt-10">
-        {channels.map((ch) => (
-          <a 
-            key={ch.id} 
-            href={ch.url} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="group block w-8 h-8 rounded-lg overflow-hidden transition-transform hover:scale-110 active:scale-95"
-          >
-            <div className="w-full h-full flex items-center justify-center relative bg-gray-50 border border-gray-100 shadow-sm overflow-hidden">
-                {/* Grayscale Base Image */}
-                <img 
-                  src={ch.thumbnail} 
-                  className={`w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 ${ch.id === 'insta' ? '' : 'absolute inset-0 z-0'}`}
-                  alt={ch.name}
-                />
-                
-                {/* Specific Colors for YouTube and Blog (Only on hover) */}
-                {ch.id === 'blog' && (
-                  <div className="absolute inset-0 bg-[#2DB400] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
-                    <span className="text-white text-base font-black">N</span>
-                  </div>
-                )}
-                {ch.id === 'yt' && (
-                  <div className="absolute inset-0 bg-[#FF0000] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
-                    <div className="w-0 h-0 border-y-[5px] border-y-transparent border-l-[8px] border-l-white ml-0.5"></div>
-                  </div>
-                )}
-            </div>
-          </a>
-        ))}
-      </div>
-
+    <div className="px-8 max-w-[1600px] mx-auto overflow-hidden">
+      
       <section className="flex flex-col lg:flex-row gap-24 mb-60 items-center lg:items-start pt-20">
         <div className="lg:w-1/2">
           <div className="aspect-[4/3] bg-gray-50 overflow-hidden relative shadow-2xl border border-gray-100 rounded-sm">
@@ -138,7 +105,7 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      <section className="mb-80">
+      <section className="mb-60">
         <div className="flex items-center gap-6 mb-16">
             <h3 className="eng-text-secondary text-[10px] uppercase font-bold text-[#111111] tracking-[0.4em]">LOCATION</h3>
             <div className="flex-grow h-[1px] bg-gray-100"></div>
@@ -226,6 +193,61 @@ const About: React.FC = () => {
                     </div>
                 </div>
             </div>
+        </div>
+      </section>
+
+      {/* Journal Section with Large Icons below the Map */}
+      <section className="mb-40 pt-20 border-t border-gray-100">
+        <div className="flex flex-col items-center text-center mb-24">
+           <h3 className="eng-text text-[10px] font-black uppercase tracking-[0.8em] text-gray-300 mb-6">JOURNAL & ARCHIVE</h3>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+          {channels.map((ch) => (
+            <a 
+              key={ch.id} 
+              href={ch.url} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="group block relative"
+            >
+              <div className="aspect-square bg-white border border-gray-100 shadow-sm overflow-hidden rounded-sm transition-all duration-700 hover:shadow-2xl hover:-translate-y-4">
+                  <div className="w-full h-full flex items-center justify-center relative">
+                      {/* Grayscale Base Image */}
+                      <img 
+                        src={ch.thumbnail} 
+                        className={`w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-110`}
+                        alt={ch.name}
+                      />
+                      
+                      {/* Overlays for each channel to give color feedback on hover */}
+                      {ch.id === 'blog' && (
+                        <div className="absolute inset-0 bg-[#2DB400] opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10 text-white p-10">
+                          <span className="text-7xl font-black mb-4">N</span>
+                          <span className="eng-text text-[10px] font-bold uppercase tracking-widest">Naver Blog</span>
+                        </div>
+                      )}
+                      {ch.id === 'yt' && (
+                        <div className="absolute inset-0 bg-[#FF0000] opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center z-10 text-white p-10">
+                          <div className="w-0 h-0 border-y-[20px] border-y-transparent border-l-[32px] border-l-white ml-2 mb-6"></div>
+                          <span className="eng-text text-[10px] font-bold uppercase tracking-widest">YouTube Channel</span>
+                        </div>
+                      )}
+                      {ch.id === 'insta' && (
+                        <div className="absolute inset-0 bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] opacity-0 group-hover:opacity-80 transition-opacity flex flex-col items-center justify-center z-10 text-white p-10">
+                          <svg className="w-16 h-16 mb-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                          <span className="eng-text text-[10px] font-bold uppercase tracking-widest">Instagram Official</span>
+                        </div>
+                      )}
+                  </div>
+              </div>
+              <div className="mt-8 text-center">
+                 <span className="eng-text text-[11px] font-black uppercase tracking-[0.4em] opacity-30 group-hover:opacity-100 transition-opacity">
+                   {ch.name}
+                 </span>
+              </div>
+            </a>
+          ))}
         </div>
       </section>
     </div>
