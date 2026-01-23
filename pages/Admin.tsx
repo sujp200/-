@@ -32,6 +32,12 @@ const Admin: React.FC = () => {
   const [expandedInquiryId, setExpandedInquiryId] = useState<number | null>(null);
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   
+  // Selection States for Manage Mode
+  const [isProjectManageMode, setIsProjectManageMode] = useState(false);
+  const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
+  const [isInquiryManageMode, setIsInquiryManageMode] = useState(false);
+  const [selectedInquiryIds, setSelectedInquiryIds] = useState<number[]>([]);
+
   const [designSettings, setDesignSettings] = useState<any>({ 
     primaryColor: '#111111', 
     secondaryColor: '#9A9A9A', 
@@ -60,19 +66,20 @@ const Admin: React.FC = () => {
       const savedInquiries = localStorage.getItem('bbeoggugi_inquiries');
       if (savedInquiries) setInquiries(JSON.parse(savedInquiries));
 
-      setDesignSettings(JSON.parse(localStorage.getItem('admin_design_settings') || '{"primaryColor":"#111111","secondaryColor":"#9A9A9A","baseFontSize":16,"mainFont":"sans"}'));
-      setAboutContent(JSON.parse(localStorage.getItem('bbeoggugi_about') || '{"mainTitle":"Art, Made\\nLivable","subtitle":"BBEOGGUGI Studio","descKr1":"","descKr2":"","descEn":"","mainImage":"","addressKr":"","addressEn":""}'));
-      setSpaceHeader(JSON.parse(localStorage.getItem('bbeoggugi_space_header') || '{"title":"Space Archive","subtitle":"Timeless Architectural Dialogue"}'));
-      setContactSettings(JSON.parse(localStorage.getItem('bbeoggugi_contact_settings') || '{"title":"Inquiry & Collaboration","subtitle":"Connect with BBEOGGUGI Studio","visibleFields":["address","size","schedule","budget","referral"]}'));
-      
-      const defaultCareer = { 
-        mainTitle: '', mainImage: '', descKr: '', descEn: '', coreValues: [], benefits: [], 
-        positions: [
-          { title: 'Designer', subTitle: '경력 3년 이상', type: 'Full-time / Senior', desc: '하이엔드 주거 및 상업 공간 경험자.' },
-          { title: 'Project Director', subTitle: '영상/마케팅', type: 'Full-time / Director', desc: '영상 제작 및 브랜드 마케팅 가능자. 브랜드의 가치를 영상으로 담아내고 소통할 수 있는 분을 찾습니다.' }
-        ] 
-      };
-      setCareerContent(JSON.parse(localStorage.getItem('bbeoggugi_career_content') || JSON.stringify(defaultCareer)));
+      const savedDesign = localStorage.getItem('admin_design_settings');
+      if (savedDesign) setDesignSettings(JSON.parse(savedDesign));
+
+      const savedAbout = localStorage.getItem('bbeoggugi_about');
+      if (savedAbout) setAboutContent(JSON.parse(savedAbout));
+
+      const savedSpace = localStorage.getItem('bbeoggugi_space_header');
+      if (savedSpace) setSpaceHeader(JSON.parse(savedSpace));
+
+      const savedContact = localStorage.getItem('bbeoggugi_contact_settings');
+      if (savedContact) setContactSettings(JSON.parse(savedContact));
+
+      const savedCareer = localStorage.getItem('bbeoggugi_career_content');
+      if (savedCareer) setCareerContent(JSON.parse(savedCareer));
     } catch (e) { console.error("Load error:", e); }
   };
 
@@ -88,7 +95,41 @@ const Admin: React.FC = () => {
     } else { alert('비밀번호가 일치하지 않습니다.'); }
   };
 
-  // --- Project Management ---
+  // --- Deletion Logic ---
+  const handleDeleteSelectedProjects = () => {
+    if (selectedProjectIds.length === 0) return;
+    if (window.confirm(`${selectedProjectIds.length}개의 프로젝트를 정말 삭제하시겠습니까?`)) {
+      const next = projects.filter(p => !selectedProjectIds.includes(p.id));
+      setProjects(next);
+      persistData('bbeoggugi_projects', next);
+      setSelectedProjectIds([]);
+      setIsProjectManageMode(false);
+    }
+  };
+
+  const handleDeleteSelectedInquiries = () => {
+    if (selectedInquiryIds.length === 0) return;
+    if (window.confirm(`${selectedInquiryIds.length}개의 문의를 정말 삭제하시겠습니까?`)) {
+      const next = inquiries.filter(inq => !selectedInquiryIds.includes(inq.id));
+      setInquiries(next);
+      persistData('bbeoggugi_inquiries', next);
+      setSelectedInquiryIds([]);
+      setIsInquiryManageMode(false);
+    }
+  };
+
+  // --- Selection Logic ---
+  const toggleProjectSelection = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setSelectedProjectIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const toggleInquirySelection = (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    setSelectedInquiryIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  // --- Project Add/Edit ---
   const handleAddProject = () => {
     const newId = `project-${Date.now()}`;
     const newProj: Project = { 
@@ -98,124 +139,106 @@ const Admin: React.FC = () => {
       info: { design: '', construction: '', photograph: '', year: '2024', site: 'Seoul', usage: 'Residential', area: '-', scope: 'Interior' }, 
       descriptionKr: '', descriptionEn: '', logos: [] 
     };
-    const updated = [newProj, ...projects];
-    setProjects(updated);
-    persistData('bbeoggugi_projects', updated);
+    const next = [newProj, ...projects];
+    setProjects(next);
+    persistData('bbeoggugi_projects', next);
     setEditingProjectId(newId);
   };
 
-  const handleDeleteProject = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation(); // 부모 클릭 방지
-    if (window.confirm('정말 삭제하시겠습니까?')) {
-      const updated = projects.filter(p => p.id !== id);
-      setProjects(updated);
-      persistData('bbeoggugi_projects', updated);
-      if (editingProjectId === id) setEditingProjectId(null);
-    }
+  const updateProjectField = (projectId: string, field: string, value: any, infoKey?: string) => {
+    const next = projects.map(p => {
+      if (p.id !== projectId) return p;
+      if (field === 'info_nested' && infoKey) return { ...p, info: { ...p.info, [infoKey]: value } };
+      return { ...p, [field]: value };
+    });
+    setProjects(next);
+    persistData('bbeoggugi_projects', next);
   };
 
-  const handleProjectFileUpload = (e: React.ChangeEvent<HTMLInputElement>, projectId: string, type: 'main' | 'gallery' | 'floorPlan') => {
+  const handleProjectFileUpload = (e: React.ChangeEvent<HTMLInputElement>, projectId: string, type: 'main' | 'gallery') => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const processFile = (file: File) => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+    };
+
+    Promise.all(Array.from(files).map(processFile)).then(base64s => {
+      const next = projects.map(p => {
+        if (p.id !== projectId) return p;
+        if (type === 'main') return { ...p, mainImage: base64s[0] };
+        return { ...p, images: [...p.images, ...base64s] };
+      });
+      setProjects(next);
+      persistData('bbeoggugi_projects', next);
+    });
+  };
+
+  const removeProjectImage = (projectId: string, imgIdx: number) => {
+    const next = projects.map(p => {
+      if (p.id !== projectId) return p;
+      return { ...p, images: p.images.filter((_, i) => i !== imgIdx) };
+    });
+    setProjects(next);
+    persistData('bbeoggugi_projects', next);
+  };
+
+  const reorderImage = (e: React.MouseEvent, projectId: string, imgIdx: number, direction: 'left' | 'right') => {
+    e.stopPropagation();
+    const next = projects.map(p => {
+      if (p.id !== projectId) return p;
+      const newImages = [...p.images];
+      const targetIdx = direction === 'left' ? imgIdx - 1 : imgIdx + 1;
+      if (targetIdx < 0 || targetIdx >= newImages.length) return p;
+      [newImages[imgIdx], newImages[targetIdx]] = [newImages[targetIdx], newImages[imgIdx]];
+      return { ...p, images: newImages };
+    });
+    setProjects(next);
+    persistData('bbeoggugi_projects', next);
+  };
+
+  const setAsMainImage = (e: React.MouseEvent, projectId: string, imageUrl: string) => {
+    e.stopPropagation();
+    const next = projects.map(p => p.id === projectId ? { ...p, mainImage: imageUrl } : p);
+    setProjects(next);
+    persistData('bbeoggugi_projects', next);
+    alert('이 이미지가 프로젝트의 대표 이미지(Poster)로 설정되었습니다.');
+  };
+
+  // --- Design Settings ---
+  const handleFontUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onloadend = () => {
-      const base64 = reader.result as string;
-      setProjects(prev => {
-        const next = prev.map(p => {
-          if (p.id !== projectId) return p;
-          if (type === 'main') return { ...p, mainImage: base64 };
-          if (type === 'gallery') return { ...p, images: [...p.images, base64] };
-          if (type === 'floorPlan') return { ...p, floorPlans: [...p.floorPlans, base64] };
-          return p;
-        });
-        persistData('bbeoggugi_projects', next);
-        return next;
-      });
+      setDesignSettings({ ...designSettings, useCustomFont: true, customFontBase64: reader.result, fontName: file.name });
     };
     reader.readAsDataURL(file);
   };
 
-  const updateProjectField = (projectId: string, field: string, value: any, infoKey?: string) => {
-    setProjects(prev => {
-      const next = prev.map(p => {
-        if (p.id !== projectId) return p;
-        if (field === 'info_nested' && infoKey) return { ...p, info: { ...p.info, [infoKey]: value } };
-        return { ...p, [field]: value };
-      });
-      persistData('bbeoggugi_projects', next);
-      return next;
-    });
+  // --- Career Logic ---
+  const addCareerItem = (key: string, newItem: any) => {
+    const next = { ...careerContent, [key]: [...(careerContent[key] || []), newItem] };
+    setCareerContent(next);
+    persistData('bbeoggugi_career_content', next);
   };
 
-  const removeProjectImage = (projectId: string, imgIdx: number, type: 'gallery' | 'floorPlan') => {
-    setProjects(prev => {
-      const next = prev.map(p => {
-        if (p.id !== projectId) return p;
-        if (type === 'gallery') return { ...p, images: p.images.filter((_, i) => i !== imgIdx) };
-        return { ...p, floorPlans: p.floorPlans.filter((_, i) => i !== imgIdx) };
-      });
-      persistData('bbeoggugi_projects', next);
-      return next;
-    });
+  const updateCareerItem = (key: string, index: number, field: string, value: any) => {
+    const newList = [...(careerContent[key] || [])];
+    newList[index] = { ...newList[index], [field]: value };
+    const next = { ...careerContent, [key]: newList };
+    setCareerContent(next);
+    persistData('bbeoggugi_career_content', next);
   };
 
-  const reorderImage = (e: React.MouseEvent, projectId: string, imgIdx: number, direction: 'left' | 'right') => {
-    e.preventDefault();
-    e.stopPropagation();
-    setProjects(prev => {
-      const next = prev.map(p => {
-        if (p.id !== projectId) return p;
-        const newImages = [...p.images];
-        const targetIdx = direction === 'left' ? imgIdx - 1 : imgIdx + 1;
-        if (targetIdx < 0 || targetIdx >= newImages.length) return p;
-        [newImages[imgIdx], newImages[targetIdx]] = [newImages[targetIdx], newImages[imgIdx]];
-        return { ...p, images: newImages };
-      });
-      persistData('bbeoggugi_projects', next);
-      return next;
-    });
-  };
-
-  const setAsMainImage = (e: React.MouseEvent, projectId: string, imageUrl: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setProjects(prev => {
-      const next = prev.map(p => p.id === projectId ? { ...p, mainImage: imageUrl } : p);
-      persistData('bbeoggugi_projects', next);
-      return next;
-    });
-  };
-
-  // --- Career Nested Item Handlers ---
-  const updateCareerItem = (type: 'coreValues' | 'benefits' | 'positions', index: number, field: string, value: any) => {
-    const nextList = [...careerContent[type]];
-    nextList[index] = { ...nextList[index], [field]: value };
-    setCareerContent({ ...careerContent, [type]: nextList });
-  };
-  const addCareerItem = (type: 'coreValues' | 'benefits' | 'positions', defaultObj: any) => {
-    setCareerContent({ ...careerContent, [type]: [...(careerContent[type] || []), defaultObj] });
-  };
-  const removeCareerItem = (type: 'coreValues' | 'benefits' | 'positions', index: number) => {
-    setCareerContent({ ...careerContent, [type]: careerContent[type].filter((_:any, i:number) => i !== index) });
-  };
-
-  // --- Design & Settings Handlers ---
-  const handleFontUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setDesignSettings({ ...designSettings, customFontBase64: reader.result as string, useCustomFont: true, fontName: file.name });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const applyDesign = () => {
-    persistData('admin_design_settings', designSettings);
-    alert('디자인 설정이 적용되었습니다.');
-    window.location.reload();
+  const removeCareerItem = (key: string, index: number) => {
+    const next = { ...careerContent, [key]: careerContent[key].filter((_: any, i: number) => i !== index) };
+    setCareerContent(next);
+    persistData('bbeoggugi_career_content', next);
   };
 
   if (!isAuthorized) {
@@ -236,7 +259,7 @@ const Admin: React.FC = () => {
         <aside className="md:w-64 space-y-8 sticky top-10 h-fit">
            <nav className="flex flex-col gap-6">
               {(['projects', 'inquiries', 'design', 'settings'] as const).map(tab => (
-                <button key={tab} onClick={() => setActiveTab(tab)} className={`text-left uppercase tracking-widest text-sm kor-bold transition-all ${activeTab === tab ? 'opacity-100 pl-4 border-l-2 border-black' : 'opacity-20 hover:opacity-100'}`}>{tab}</button>
+                <button key={tab} onClick={() => { setActiveTab(tab); setEditingProjectId(null); setIsProjectManageMode(false); setIsInquiryManageMode(false); }} className={`text-left uppercase tracking-widest text-sm kor-bold transition-all ${activeTab === tab ? 'opacity-100 pl-4 border-l-2 border-black' : 'opacity-20 hover:opacity-100'}`}>{tab}</button>
               ))}
               <button onClick={() => { sessionStorage.removeItem('admin_auth'); window.location.reload(); }} className="text-left mt-10 opacity-20 hover:opacity-100 text-red-500 text-[10px] font-black uppercase tracking-widest">Logout</button>
            </nav>
@@ -245,45 +268,63 @@ const Admin: React.FC = () => {
         <div className="flex-grow pb-40">
           {activeTab === 'projects' && (
             <div className="space-y-8">
-               <div className="flex justify-between items-end border-b pb-6">
+               <div className="flex justify-between items-center border-b pb-6">
                  <h3 className="kor-bold text-2xl uppercase tracking-tighter">Project Archive</h3>
-                 <button onClick={handleAddProject} className="bg-black text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-transform hover:scale-105">+ New Project</button>
+                 <div className="flex gap-4">
+                    {isProjectManageMode ? (
+                      <>
+                        <button onClick={() => { setIsProjectManageMode(false); setSelectedProjectIds([]); }} className="text-[10px] font-black uppercase border px-5 py-2 rounded-full tracking-widest hover:bg-gray-100 transition-colors">Cancel</button>
+                        <button onClick={handleDeleteSelectedProjects} disabled={selectedProjectIds.length === 0} className={`text-[10px] font-black uppercase border px-5 py-2 rounded-full tracking-widest transition-all ${selectedProjectIds.length > 0 ? 'bg-red-500 border-red-500 text-white shadow-lg' : 'opacity-20 bg-gray-100 cursor-not-allowed'}`}>Delete Selected ({selectedProjectIds.length})</button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => setIsProjectManageMode(true)} className="text-[10px] font-black uppercase border border-black px-5 py-2 rounded-full tracking-widest hover:bg-black hover:text-white transition-all">Manage List</button>
+                        <button onClick={handleAddProject} className="bg-black text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-transform hover:scale-105">+ New Project</button>
+                      </>
+                    )}
+                 </div>
                </div>
+               
                <div className="grid grid-cols-1 gap-4">
                  {projects.map((p) => (
-                   <div key={p.id} className={`border bg-white rounded-sm overflow-hidden shadow-sm transition-all ${editingProjectId === p.id ? 'ring-1 ring-black' : ''}`}>
-                      <div className="p-4 flex justify-between items-center bg-gray-50/30 cursor-pointer" onClick={() => setEditingProjectId(editingProjectId === p.id ? null : p.id)}>
-                        <div className="flex items-center gap-4">
+                   <div key={p.id} className={`border bg-white rounded-sm overflow-hidden shadow-sm transition-all ${editingProjectId === p.id ? 'ring-1 ring-black shadow-lg' : ''}`}>
+                      <div className={`p-4 flex justify-between items-center bg-gray-50/30 transition-colors ${isProjectManageMode ? 'cursor-default' : 'cursor-pointer hover:bg-gray-50'}`} onClick={() => !isProjectManageMode && setEditingProjectId(editingProjectId === p.id ? null : p.id)}>
+                        <div className="flex items-center gap-6">
+                           {isProjectManageMode && (
+                              <div onClick={(e) => toggleProjectSelection(e, p.id)} className={`w-5 h-5 border flex items-center justify-center transition-all cursor-pointer ${selectedProjectIds.includes(p.id) ? 'bg-black border-black' : 'bg-white border-gray-200'}`}>
+                                 {selectedProjectIds.includes(p.id) && <div className="w-1.5 h-1.5 bg-white"></div>}
+                              </div>
+                           )}
                            <img src={p.mainImage} className="w-10 h-14 object-cover border bg-gray-100" alt="" />
                            <div className="flex flex-col">
                              <span className="kor-bold text-sm">{p.title || 'Untitled Project'}</span>
                              <span className="text-[9px] uppercase text-gray-400 tracking-widest">{p.titleEn}</span>
                            </div>
                         </div>
-                        <div className="flex gap-2">
-                           <button onClick={(e) => { e.stopPropagation(); setEditingProjectId(editingProjectId === p.id ? null : p.id); }} className="text-[10px] font-bold border px-6 py-2 rounded-full uppercase tracking-widest hover:bg-black hover:text-white transition-colors">{editingProjectId === p.id ? 'Close' : 'Edit'}</button>
-                           <button onClick={(e) => handleDeleteProject(e, p.id)} className="text-[10px] font-bold border border-red-100 text-red-400 px-6 py-2 rounded-full uppercase tracking-widest hover:bg-red-500 hover:text-white transition-colors">Del</button>
-                        </div>
+                        {!isProjectManageMode && (
+                           <button onClick={(e) => { e.stopPropagation(); setEditingProjectId(editingProjectId === p.id ? null : p.id); }} className="text-[10px] font-bold border px-4 py-2 rounded-full uppercase tracking-widest hover:bg-black hover:text-white transition-colors">{editingProjectId === p.id ? 'Close' : 'Edit'}</button>
+                        )}
                       </div>
-                      {editingProjectId === p.id && (
+                      
+                      {editingProjectId === p.id && !isProjectManageMode && (
                         <div className="p-8 space-y-12 animate-in slide-in-from-top-4 border-t">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
                              <div className="space-y-8">
                                 <label className="text-[10px] font-black uppercase text-gray-400 border-b pb-1 block tracking-[0.2em]">Basic Information</label>
                                 <div className="space-y-6">
-                                  <div><label className="text-[8px] uppercase font-bold text-gray-300 block mb-1">Title (KR)</label><input className="w-full border-b p-2 kor-bold outline-none focus:border-black" value={p.title} onChange={e => updateProjectField(p.id, 'title', e.target.value)} /></div>
-                                  <div><label className="text-[8px] uppercase font-bold text-gray-300 block mb-1">Title (EN)</label><input className="w-full border-b p-2 text-sm outline-none focus:border-black" value={p.titleEn} onChange={e => updateProjectField(p.id, 'titleEn', e.target.value)} /></div>
+                                  <div><label className="text-[8px] uppercase font-bold text-gray-300 block mb-1">Title (KR)</label><input className="w-full border-b p-2 kor-bold outline-none focus:border-black bg-transparent" value={p.title} onChange={e => updateProjectField(p.id, 'title', e.target.value)} /></div>
+                                  <div><label className="text-[8px] uppercase font-bold text-gray-300 block mb-1">Title (EN)</label><input className="w-full border-b p-2 text-sm outline-none focus:border-black bg-transparent" value={p.titleEn} onChange={e => updateProjectField(p.id, 'titleEn', e.target.value)} /></div>
                                   <div>
                                     <label className="text-[8px] uppercase font-bold text-gray-300 block mb-3">Main Poster Image</label>
                                     <div className="flex items-center gap-6">
                                        <img src={p.mainImage} className="w-20 h-28 object-cover border shadow-sm" alt="" />
                                        <div className="flex-grow">
-                                          <input type="file" id={`main-img-input-${p.id}`} className="hidden" accept="image/*" onChange={e => handleProjectFileUpload(e, p.id, 'main')} />
-                                          <label htmlFor={`main-img-input-${p.id}`} className="block w-full border border-black/10 py-4 text-center cursor-pointer hover:bg-gray-50 text-[10px] font-black uppercase tracking-widest">Replace Main Image</label>
+                                          <input type="file" id={`main-img-up-${p.id}`} className="hidden" accept="image/*" onChange={e => handleProjectFileUpload(e, p.id, 'main')} />
+                                          <label htmlFor={`main-img-up-${p.id}`} className="block w-full border border-black/10 py-4 text-center cursor-pointer hover:bg-gray-50 text-[10px] font-black uppercase tracking-widest">Replace Poster</label>
                                        </div>
                                     </div>
                                   </div>
-                                  <div><label className="text-[8px] uppercase font-bold text-gray-300 block mb-1">Description (KR)</label><textarea className="w-full border p-4 text-xs leading-relaxed outline-none focus:border-black" rows={4} value={p.descriptionKr} onChange={e => updateProjectField(p.id, 'descriptionKr', e.target.value)} /></div>
+                                  <div><label className="text-[8px] uppercase font-bold text-gray-300 block mb-1">Description (KR)</label><textarea className="w-full border p-4 text-xs outline-none focus:border-black bg-transparent" rows={4} value={p.descriptionKr} onChange={e => updateProjectField(p.id, 'descriptionKr', e.target.value)} /></div>
                                 </div>
                              </div>
                              <div className="space-y-8">
@@ -292,34 +333,34 @@ const Admin: React.FC = () => {
                                    {Object.keys(p.info).map((key) => (
                                      <div key={key}>
                                        <label className="text-[8px] uppercase font-bold text-gray-300 block mb-1">{key}</label>
-                                       <input className="w-full border-b py-2 text-xs outline-none focus:border-black" value={(p.info as any)[key]} onChange={e => updateProjectField(p.id, 'info_nested', e.target.value, key)} />
+                                       <input className="w-full border-b py-2 text-xs outline-none focus:border-black bg-transparent" value={(p.info as any)[key]} onChange={e => updateProjectField(p.id, 'info_nested', e.target.value, key)} />
                                      </div>
                                    ))}
                                 </div>
                              </div>
                           </div>
 
-                          <div className="space-y-6 pt-6 border-t">
-                             <label className="text-[10px] font-black uppercase text-gray-400 block tracking-[0.2em]">Gallery & Portfolio Images (Drag to Sort)</label>
+                          <div className="space-y-8 pt-8 border-t">
+                             <label className="text-[10px] font-black uppercase text-gray-400 block tracking-[0.2em]">Gallery (Sortable Images)</label>
                              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                                 {p.images.map((img, imgIdx) => (
-                                  <div key={imgIdx} className="relative group border rounded-sm overflow-hidden bg-gray-50 aspect-[3/4]">
+                                  <div key={imgIdx} className="relative group border bg-gray-50 aspect-[3/4] overflow-hidden">
                                      <img src={img} className="w-full h-full object-cover" alt="" />
-                                     <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity p-3 text-center">
-                                        <div className="flex gap-2 mb-2">
-                                          <button onClick={(e) => reorderImage(e, p.id, imgIdx, 'left')} className="bg-white/10 text-white w-8 h-8 rounded-full border border-white/20 hover:bg-white hover:text-black transition-all">←</button>
-                                          <button onClick={(e) => reorderImage(e, p.id, imgIdx, 'right')} className="bg-white/10 text-white w-8 h-8 rounded-full border border-white/20 hover:bg-white hover:text-black transition-all">→</button>
+                                     <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity p-2 text-center">
+                                        <div className="flex gap-2">
+                                           <button onClick={(e) => reorderImage(e, p.id, imgIdx, 'left')} className="bg-white/10 text-white w-6 h-6 border rounded-full hover:bg-white hover:text-black">←</button>
+                                           <button onClick={(e) => reorderImage(e, p.id, imgIdx, 'right')} className="bg-white/10 text-white w-6 h-6 border rounded-full hover:bg-white hover:text-black">→</button>
                                         </div>
-                                        <button onClick={(e) => setAsMainImage(e, p.id, img)} className="bg-white text-black px-4 py-1.5 text-[8px] font-black rounded-full uppercase tracking-tighter hover:bg-yellow-400 transition-colors">Set as Poster</button>
-                                        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeProjectImage(p.id, imgIdx, 'gallery'); }} className="text-red-400 text-[8px] uppercase font-bold hover:underline mt-2">Remove</button>
+                                        <button onClick={(e) => setAsMainImage(e, p.id, img)} className="text-[7px] font-black uppercase bg-white px-2 py-1 rounded-full mt-1">Set as Poster</button>
+                                        <button onClick={() => removeProjectImage(p.id, imgIdx)} className="text-red-400 text-[8px] font-black uppercase mt-1">Delete</button>
                                      </div>
                                   </div>
                                 ))}
-                                <input type="file" id={`gallery-up-input-${p.id}`} className="hidden" accept="image/*" onChange={e => handleProjectFileUpload(e, p.id, 'gallery')} />
-                                <label htmlFor={`gallery-up-input-${p.id}`} className="border-2 border-dashed flex flex-col items-center justify-center text-[10px] text-gray-300 hover:text-black hover:border-black transition-all aspect-[3/4] font-black uppercase cursor-pointer">+ Add Image</label>
+                                <input type="file" id={`gallery-up-${p.id}`} className="hidden" multiple accept="image/*" onChange={e => handleProjectFileUpload(e, p.id, 'gallery')} />
+                                <label htmlFor={`gallery-up-${p.id}`} className="border-2 border-dashed flex flex-col items-center justify-center text-[10px] text-gray-300 hover:text-black hover:border-black transition-all aspect-[3/4] font-black uppercase cursor-pointer">+ Add Images</label>
                              </div>
                           </div>
-                          <button onClick={() => alert('프로젝트 내용이 저장되었습니다.')} className="w-full bg-black text-white py-6 font-black uppercase text-[11px] tracking-[0.5em] shadow-xl hover:bg-gray-800 transition-colors">Final Save Project Archive</button>
+                          <button onClick={() => { setEditingProjectId(null); alert('프로젝트 내용이 저장되었습니다.'); }} className="w-full bg-black text-white py-6 font-black uppercase text-[11px] tracking-[0.5em] shadow-xl">Close Editor</button>
                         </div>
                       )}
                    </div>
@@ -330,61 +371,59 @@ const Admin: React.FC = () => {
 
           {activeTab === 'inquiries' && (
             <div className="space-y-8">
-               <div className="flex justify-between items-end border-b pb-6">
-                 <h3 className="kor-bold text-2xl uppercase tracking-tighter">Client Inquiries</h3>
-                 <span className="text-[10px] font-black uppercase text-gray-400">Total: {inquiries.length}</span>
+               <div className="flex justify-between items-center border-b pb-6">
+                 <h3 className="kor-bold text-2xl uppercase tracking-tighter">Inquiries</h3>
+                 <div className="flex gap-4">
+                    {isInquiryManageMode ? (
+                      <>
+                        <button onClick={() => { setIsInquiryManageMode(false); setSelectedInquiryIds([]); }} className="text-[10px] font-black uppercase border px-5 py-2 rounded-full tracking-widest hover:bg-gray-100 transition-colors">Cancel</button>
+                        <button onClick={handleDeleteSelectedInquiries} disabled={selectedInquiryIds.length === 0} className={`text-[10px] font-black uppercase border px-5 py-2 rounded-full tracking-widest transition-all ${selectedInquiryIds.length > 0 ? 'bg-red-500 border-red-500 text-white shadow-lg' : 'opacity-20 bg-gray-100 cursor-not-allowed'}`}>Delete Selected ({selectedInquiryIds.length})</button>
+                      </>
+                    ) : (
+                      <button onClick={() => setIsInquiryManageMode(true)} className="text-[10px] font-black uppercase border border-black px-5 py-2 rounded-full tracking-widest hover:bg-black hover:text-white transition-all">Manage List</button>
+                    )}
+                 </div>
                </div>
+               
                <div className="border rounded-sm overflow-hidden bg-white shadow-sm">
                   <table className="w-full text-left text-xs">
                      <thead className="bg-gray-50 uppercase text-gray-400 font-black border-b">
-                       <tr><th className="p-4 w-32">Date</th><th className="p-4">Client Name</th><th className="p-4">Type</th><th className="p-4 text-right">Action</th></tr>
+                       <tr>
+                         {isInquiryManageMode && <th className="p-4 w-12 text-center">Sel</th>}
+                         <th className="p-4">Date</th><th className="p-4">Client</th><th className="p-4">Type</th>
+                       </tr>
                      </thead>
                      <tbody className="divide-y">
-                       {inquiries.length === 0 ? (
-                         <tr><td colSpan={4} className="p-20 text-center text-gray-300 uppercase font-black tracking-widest">No inquiries found</td></tr>
-                       ) : (
-                         inquiries.map(inq => (
-                           <React.Fragment key={inq.id}>
-                            <tr onClick={() => setExpandedInquiryId(expandedInquiryId === inq.id ? null : inq.id)} className={`cursor-pointer transition-colors ${expandedInquiryId === inq.id ? 'bg-gray-50' : 'hover:bg-gray-50/50'}`}>
+                       {inquiries.map(inq => (
+                         <React.Fragment key={inq.id}>
+                            <tr onClick={() => !isInquiryManageMode && setExpandedInquiryId(expandedInquiryId === inq.id ? null : inq.id)} className={`transition-colors ${isInquiryManageMode ? 'cursor-default' : 'cursor-pointer hover:bg-gray-50'}`}>
+                              {isInquiryManageMode && (
+                                <td className="p-4 text-center">
+                                  <div onClick={(e) => toggleInquirySelection(e, inq.id)} className={`w-5 h-5 border mx-auto flex items-center justify-center transition-all cursor-pointer ${selectedInquiryIds.includes(inq.id) ? 'bg-black border-black' : 'bg-white border-gray-200'}`}>
+                                     {selectedInquiryIds.includes(inq.id) && <div className="w-1.5 h-1.5 bg-white"></div>}
+                                  </div>
+                                </td>
+                              )}
                               <td className="p-4 text-gray-400 font-mono">{new Date(inq.date).toLocaleDateString()}</td>
                               <td className="p-4 kor-bold text-sm">{inq.name}</td>
-                              <td className="p-4 uppercase"><span className="border px-3 py-1 rounded-full bg-white text-[9px] font-black tracking-tighter">{inq.type}</span></td>
-                              <td className="p-4 text-right">
-                                  <button onClick={(e) => { 
-                                    e.stopPropagation(); // 이 줄이 핵심입니다: 부모 tr의 onClick(상세보기) 방지
-                                    if(confirm('정말 이 문의 내역을 삭제하시겠습니까?')) { 
-                                      const next = inquiries.filter(i => i.id !== inq.id); 
-                                      setInquiries(next); 
-                                      persistData('bbeoggugi_inquiries', next); 
-                                    } 
-                                  }} className="text-red-400 font-black uppercase text-[10px] hover:underline px-4">Delete</button>
-                              </td>
+                              <td className="p-4 uppercase"><span className="text-[9px] border px-2 py-1 rounded-full bg-gray-50">{inq.type}</span></td>
                             </tr>
-                            {expandedInquiryId === inq.id && (
-                              <tr className="animate-in fade-in slide-in-from-top-2">
-                                <td colSpan={4} className="p-10 bg-gray-50/50 border-b">
-                                  <div className="bg-white p-10 border shadow-sm rounded-sm space-y-10">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                                      <div className="space-y-1"><label className="text-[9px] uppercase font-black text-gray-400 tracking-widest">Phone</label><p className="text-sm kor-bold border-b pb-2">{inq.phone || '-'}</p></div>
-                                      <div className="space-y-1"><label className="text-[9px] uppercase font-black text-gray-400 tracking-widest">Email</label><p className="text-sm kor-bold border-b pb-2">{inq.email || '-'}</p></div>
-                                      <div className="space-y-1"><label className="text-[9px] uppercase font-black text-gray-400 tracking-widest">Project Category</label><p className="text-sm kor-bold border-b pb-2">{inq.type || '-'}</p></div>
-                                      <div className="space-y-1"><label className="text-[9px] uppercase font-black text-gray-400 tracking-widest">Address</label><p className="text-sm kor-bold border-b pb-2">{inq.address || '-'}</p></div>
-                                      <div className="space-y-1"><label className="text-[9px] uppercase font-black text-gray-400 tracking-widest">Size / Area</label><p className="text-sm kor-bold border-b pb-2">{inq.size || '-'}</p></div>
-                                      <div className="space-y-1"><label className="text-[9px] uppercase font-black text-gray-400 tracking-widest">Budget Range</label><p className="text-sm kor-bold border-b pb-2">{inq.budget || '-'}</p></div>
+                            {expandedInquiryId === inq.id && !isInquiryManageMode && (
+                              <tr className="bg-gray-50/50">
+                                <td colSpan={isInquiryManageMode ? 4 : 3} className="p-8">
+                                  <div className="bg-white p-8 border shadow-sm rounded-sm space-y-6">
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+                                      <div className="space-y-1"><label className="text-[8px] uppercase font-black text-gray-300 tracking-widest">Phone</label><p className="text-sm kor-bold border-b pb-2">{inq.phone || '-'}</p></div>
+                                      <div className="space-y-1"><label className="text-[8px] uppercase font-black text-gray-300 tracking-widest">Email</label><p className="text-sm kor-bold border-b pb-2">{inq.email || '-'}</p></div>
+                                      <div className="space-y-1"><label className="text-[8px] uppercase font-black text-gray-300 tracking-widest">Address</label><p className="text-sm kor-bold border-b pb-2">{inq.address || '-'}</p></div>
                                     </div>
-                                    <div className="space-y-3">
-                                      <label className="text-[9px] uppercase font-black text-gray-400 tracking-widest">Detailed Message / Requirement</label>
-                                      <div className="text-sm kor-bold whitespace-pre-wrap leading-relaxed p-6 bg-gray-50 border-l-4 border-black">
-                                        {inq.content || inq.message || 'No additional information provided.'}
-                                      </div>
-                                    </div>
+                                    <div className="space-y-2"><label className="text-[8px] uppercase font-black text-gray-300 tracking-widest">Message</label><p className="text-sm leading-relaxed border-l-4 border-black pl-4 py-2 bg-gray-50/50 whitespace-pre-wrap">{inq.content || inq.message || 'None'}</p></div>
                                   </div>
                                 </td>
                               </tr>
                             )}
-                           </React.Fragment>
-                         ))
-                       )}
+                         </React.Fragment>
+                       ))}
                      </tbody>
                   </table>
                </div>
@@ -393,42 +432,26 @@ const Admin: React.FC = () => {
 
           {activeTab === 'design' && (
             <div className="space-y-12">
-               <h3 className="kor-bold text-2xl border-b pb-6 uppercase tracking-tighter">Visual Identity & Theme</h3>
+               <h3 className="kor-bold text-2xl border-b pb-6 uppercase tracking-tighter">Design Identity</h3>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
-                  <div className="space-y-12">
-                    <div className="space-y-4">
-                       <label className="text-[10px] font-black uppercase text-gray-400 block tracking-widest">Global Colors</label>
-                       <div className="flex items-center justify-between border-b pb-4">
-                         <div className="flex flex-col"><span className="text-xs kor-bold">Primary Theme</span><span className="text-[9px] text-gray-300">Headlines, Buttons, Dark Mode</span></div>
-                         <input type="color" value={designSettings.primaryColor} onChange={e => setDesignSettings({...designSettings, primaryColor: e.target.value})} className="w-12 h-12 border-none cursor-pointer p-0 bg-transparent" />
-                       </div>
-                    </div>
-                    <div className="space-y-4">
-                       <label className="text-[10px] font-black uppercase text-gray-400 block tracking-widest">Typography System</label>
-                       <div className="flex gap-4">
-                          <button onClick={() => setDesignSettings({...designSettings, mainFont: 'sans', useCustomFont: false})} className={`flex-1 py-5 text-[10px] font-black uppercase border transition-all ${!designSettings.useCustomFont && designSettings.mainFont === 'sans' ? 'bg-black text-white' : 'bg-white hover:bg-gray-50'}`}>Sans (Gothic)</button>
-                          <button onClick={() => setDesignSettings({...designSettings, mainFont: 'serif', useCustomFont: false})} className={`flex-1 py-5 text-[10px] font-black uppercase border transition-all ${!designSettings.useCustomFont && designSettings.mainFont === 'serif' ? 'bg-black text-white' : 'bg-white hover:bg-gray-50'}`}>Serif (Myeongjo)</button>
-                       </div>
+                  <div className="space-y-8">
+                    <label className="text-[10px] font-black uppercase text-gray-400 block tracking-widest">Primary Color</label>
+                    <div className="flex items-center gap-6">
+                       <input type="color" value={designSettings.primaryColor} onChange={e => setDesignSettings({...designSettings, primaryColor: e.target.value})} className="w-16 h-16 border-none cursor-pointer p-0 bg-transparent" />
+                       <span className="text-sm font-mono uppercase tracking-widest">{designSettings.primaryColor}</span>
                     </div>
                   </div>
                   <div className="space-y-8">
-                    <label className="text-[10px] font-black uppercase text-gray-400 block tracking-widest">Brand Font Upload (.ttf, .woff)</label>
-                    <div className="border-2 border-dashed p-16 text-center rounded-sm bg-gray-50/30 hover:bg-white transition-all">
-                       <input type="file" id="font-upload" className="hidden" accept=".ttf,.woff,.woff2" onChange={handleFontUpload} />
-                       <label htmlFor="font-upload" className="block cursor-pointer space-y-4">
-                          <div className="w-12 h-12 mx-auto border rounded-full flex items-center justify-center opacity-20"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="1.5"><path d="M12 5v14M5 12h14"/></svg></div>
-                          <span className="block text-[10px] font-black uppercase tracking-widest text-gray-400">{designSettings.fontName || 'Choose Font File'}</span>
-                       </label>
-                    </div>
-                    {designSettings.useCustomFont && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-[9px] text-green-600 font-black uppercase">Custom Font Active</span>
-                        <button onClick={() => setDesignSettings({...designSettings, useCustomFont: false, fontName: ''})} className="text-red-400 text-[9px] uppercase font-bold underline">Reset to System Font</button>
-                      </div>
-                    )}
+                    <label className="text-[10px] font-black uppercase text-gray-400 block tracking-widest">Brand Font Upload</label>
+                    <input type="file" id="font-up" className="hidden" accept=".ttf,.woff,.woff2" onChange={handleFontUpload} />
+                    <label htmlFor="font-up" className="block border-2 border-dashed p-10 text-center cursor-pointer hover:border-black transition-colors bg-gray-50/30">
+                        <span className="block text-[11px] font-black uppercase tracking-widest text-gray-400">
+                          {designSettings.fontName || 'Select Font File (.ttf/.woff)'}
+                        </span>
+                    </label>
                   </div>
                </div>
-               <button onClick={applyDesign} className="w-full bg-black text-white py-6 text-[11px] font-black uppercase tracking-[0.5em] shadow-2xl transition-all hover:bg-gray-800">Apply Design Update</button>
+               <button onClick={() => { persistData('admin_design_settings', designSettings); alert('디자인 설정이 저장되었습니다. 새로고침 후 반영됩니다.'); window.location.reload(); }} className="w-full bg-black text-white py-6 text-[11px] font-black uppercase tracking-[0.5em] shadow-2xl hover:bg-gray-800">Apply System Update</button>
             </div>
           )}
 
@@ -445,65 +468,53 @@ const Admin: React.FC = () => {
                     <div className="space-y-12">
                        <div className="grid grid-cols-2 gap-12">
                           <div className="space-y-2 col-span-2 md:col-span-1"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Main Philosophy Title</label><textarea value={aboutContent.mainTitle} onChange={e => setAboutContent({...aboutContent, mainTitle: e.target.value})} className="w-full border-b p-3 text-2xl kor-bold outline-none focus:border-black bg-transparent" rows={2} /></div>
-                          <div className="space-y-2 col-span-2 md:col-span-1"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Company Slogan</label><input value={aboutContent.subtitle} onChange={e => setAboutContent({...aboutContent, subtitle: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
-                          <div className="space-y-2 col-span-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Official Office Address (KR)</label><input value={aboutContent.addressKr} onChange={e => setAboutContent({...aboutContent, addressKr: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
-                          <div className="space-y-2 col-span-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Main Description / Philosophy (KR)</label><textarea value={aboutContent.descKr1} onChange={e => setAboutContent({...aboutContent, descKr1: e.target.value})} className="w-full border p-4 text-sm leading-relaxed outline-none focus:border-black" rows={4} /></div>
+                          <div className="space-y-2 col-span-2 md:col-span-1"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Brand Subtitle</label><input value={aboutContent.subtitle} onChange={e => setAboutContent({...aboutContent, subtitle: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
+                          <div className="space-y-2 col-span-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Office HQ Address (KR)</label><input value={aboutContent.addressKr} onChange={e => setAboutContent({...aboutContent, addressKr: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
                        </div>
-                       <button onClick={() => { persistData('bbeoggugi_about', aboutContent); alert('About 정보가 성공적으로 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px] tracking-widest">Save Settings</button>
+                       <button onClick={() => { persistData('bbeoggugi_about', aboutContent); alert('About 정보가 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px] tracking-widest">Save Settings</button>
+                    </div>
+                  )}
+
+                  {settingsSubTab === 'space' && (
+                    <div className="space-y-12">
+                       <div className="grid grid-cols-2 gap-12">
+                          <div className="space-y-2 col-span-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Space Archive Title</label><input value={spaceHeader.title} onChange={e => setSpaceHeader({...spaceHeader, title: e.target.value})} className="w-full border-b p-3 text-2xl kor-bold outline-none focus:border-black bg-transparent" /></div>
+                          <div className="space-y-2 col-span-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Space Archive Subtitle</label><input value={spaceHeader.subtitle} onChange={e => setSpaceHeader({...spaceHeader, subtitle: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
+                       </div>
+                       <button onClick={() => { persistData('bbeoggugi_space_header', spaceHeader); alert('Space 헤더 설정이 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px] tracking-widest">Save Settings</button>
                     </div>
                   )}
 
                   {settingsSubTab === 'career' && (
                     <div className="space-y-16">
                        <div className="space-y-8 border-b pb-12">
-                          <h4 className="text-xs font-black uppercase tracking-[0.2em] border-l-4 border-black pl-4">Career Hero Section</h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                             <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase">Main Title</label><textarea value={careerContent.mainTitle} onChange={e => setCareerContent({...careerContent, mainTitle: e.target.value})} className="w-full border-b p-3 text-xl kor-bold bg-transparent outline-none focus:border-black" rows={2} /></div>
-                             <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase">Hero Description (KR)</label><textarea value={careerContent.descKr} onChange={e => setCareerContent({...careerContent, descKr: e.target.value})} className="w-full border p-4 text-sm bg-transparent outline-none focus:border-black" rows={3} /></div>
-                          </div>
+                          <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Careers Page Title</label>
+                          <textarea value={careerContent.mainTitle} onChange={e => setCareerContent({...careerContent, mainTitle: e.target.value})} className="w-full border-b p-3 text-xl kor-bold bg-transparent outline-none focus:border-black" rows={2} />
                        </div>
-
                        <div className="space-y-10">
-                          <h4 className="text-xs font-black uppercase tracking-[0.2em] border-l-4 border-black pl-4">Open Positions (Recruitment)</h4>
-                          <div className="space-y-6">
-                             {careerContent.positions?.map((pos:any, i:number) => (
-                               <div key={i} className="border p-10 space-y-8 bg-white relative group shadow-sm">
-                                  <button onClick={() => removeCareerItem('positions', i)} className="absolute top-6 right-6 text-red-400 font-black text-[9px] uppercase hover:underline">Remove</button>
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                                     <div className="space-y-1"><label className="text-[8px] uppercase font-bold text-gray-300">Job Title</label><input className="w-full border-b text-xl font-bold outline-none focus:border-black" value={pos.title} onChange={e => updateCareerItem('positions', i, 'title', e.target.value)} /></div>
-                                     <div className="space-y-1"><label className="text-[8px] uppercase font-bold text-gray-300">Requirements</label><input className="w-full border-b text-sm outline-none focus:border-black" value={pos.subTitle} onChange={e => updateCareerItem('positions', i, 'subTitle', e.target.value)} /></div>
-                                     <div className="space-y-1"><label className="text-[8px] uppercase font-bold text-gray-300">Job Type</label><input className="w-full border-b text-sm outline-none focus:border-black" value={pos.type} onChange={e => updateCareerItem('positions', i, 'type', e.target.value)} /></div>
-                                  </div>
-                                  <div className="space-y-1">
-                                    <label className="text-[8px] uppercase font-bold text-gray-300">Description</label>
-                                    <textarea className="w-full border p-4 text-[13px] leading-relaxed outline-none focus:border-black" value={pos.desc} onChange={e => updateCareerItem('positions', i, 'desc', e.target.value)} rows={4} />
-                                  </div>
-                               </div>
-                             ))}
-                             <button onClick={() => addCareerItem('positions', {title:'', subTitle:'', type:'', desc:''})} className="w-full border-2 border-dashed py-12 text-[11px] font-black uppercase text-gray-300 hover:text-black hover:border-black transition-all">+ Add New Announcement</button>
-                          </div>
+                          <h4 className="text-xs font-black uppercase tracking-[0.2em]">Positions List</h4>
+                          {careerContent.positions?.map((pos:any, i:number) => (
+                             <div key={i} className="border p-8 space-y-6 bg-white relative shadow-sm">
+                                <button onClick={() => removeCareerItem('positions', i)} className="absolute top-6 right-6 text-red-500 font-black text-[9px] uppercase">Remove</button>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                   <input className="w-full border-b text-xl font-bold outline-none focus:border-black bg-transparent" placeholder="Job Title" value={pos.title} onChange={e => updateCareerItem('positions', i, 'title', e.target.value)} />
+                                   <input className="w-full border-b text-sm outline-none focus:border-black bg-transparent" placeholder="Requirement" value={pos.subTitle} onChange={e => updateCareerItem('positions', i, 'subTitle', e.target.value)} />
+                                   <input className="w-full border-b text-sm outline-none focus:border-black bg-transparent" placeholder="Employment Type" value={pos.type} onChange={e => updateCareerItem('positions', i, 'type', e.target.value)} />
+                                </div>
+                                <textarea className="w-full border p-4 text-[13px] leading-relaxed outline-none focus:border-black bg-transparent" placeholder="Job Description" value={pos.desc} onChange={updateCareerItem.bind(null, 'positions', i, 'desc')} rows={3} />
+                             </div>
+                          ))}
+                          <button onClick={() => addCareerItem('positions', {title:'', subTitle:'', type:'', desc:''})} className="w-full border-2 border-dashed py-8 text-[11px] font-black uppercase text-gray-300 hover:text-black">+ Add New Position</button>
                        </div>
-                       <button onClick={() => { persistData('bbeoggugi_career_content', careerContent); alert('Career 설정이 모두 저장되었습니다.'); }} className="w-full bg-black text-white py-6 font-black uppercase text-[12px] tracking-[0.5em] sticky bottom-4 shadow-2xl transition-transform active:scale-[0.99]">Final Save Career Data</button>
+                       <button onClick={() => { persistData('bbeoggugi_career_content', careerContent); alert('채용 정보가 최종 저장되었습니다.'); }} className="w-full bg-black text-white py-6 font-black uppercase text-[11px] tracking-[0.4em]">Final Save Career Data</button>
                     </div>
                   )}
 
                   {settingsSubTab === 'contact' && (
                     <div className="space-y-12">
-                       <div className="grid grid-cols-2 gap-10">
-                          <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Page Title</label><input value={contactSettings.title} onChange={e => setContactSettings({...contactSettings, title: e.target.value})} className="w-full border-b p-3 text-xl outline-none focus:border-black bg-transparent" /></div>
-                          <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Sub Headline</label><input value={contactSettings.subtitle} onChange={e => setContactSettings({...contactSettings, subtitle: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
-                       </div>
-                       <button onClick={() => { persistData('bbeoggugi_contact_settings', contactSettings); alert('Contact 헤더가 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px] tracking-widest">Save Settings</button>
-                    </div>
-                  )}
-
-                  {settingsSubTab === 'space' && (
-                    <div className="space-y-12">
-                       <div className="grid grid-cols-2 gap-10">
-                          <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Archive Main Title</label><input value={spaceHeader.title} onChange={e => setSpaceHeader({...spaceHeader, title: e.target.value})} className="w-full border-b p-3 text-xl kor-bold outline-none focus:border-black bg-transparent" /></div>
-                          <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Archive Sub Headline</label><input value={spaceHeader.subtitle} onChange={e => setSpaceHeader({...spaceHeader, subtitle: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
-                       </div>
-                       <button onClick={() => { persistData('bbeoggugi_space_header', spaceHeader); alert('Archive 헤더 정보가 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px] tracking-widest">Save Settings</button>
+                       <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Inquiry Form Title</label>
+                       <input value={contactSettings.title} onChange={e => setContactSettings({...contactSettings, title: e.target.value})} className="w-full border-b p-3 text-xl outline-none focus:border-black bg-transparent" />
+                       <button onClick={() => { persistData('bbeoggugi_contact_settings', contactSettings); alert('Contact 헤더 정보가 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px] tracking-widest">Save Settings</button>
                     </div>
                   )}
                </div>
