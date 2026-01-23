@@ -15,8 +15,7 @@ const Careers: React.FC = () => {
     ],
     benefits: [
       { kr: '점심 지원', desc: '팀원들의 든든한 점심 식사를 지원합니다.' },
-      { kr: '야근 석식 및 수당', desc: '야근 시 석식 지원 및 야근 수당을 지급합니다.' },
-      { kr: '4대 보험 보장', desc: '안정적인 근무 환경을 위한 기본적인 보장입니다.' },
+      { kr: '야근 석식 지원', desc: '야근 시 맛있는 석식을 지원합니다.' },
       { kr: '자유로운 연차', desc: '눈치 보지 않고 자유롭게 연차를 사용합니다.' },
       { kr: '좋은 팀 분위기', desc: '존중하는 태도의 팀원들과 협업이 원활한 문화입니다.' },
       { kr: '고퀄리티 포트폴리오', desc: '국내 최고 수준의 프로젝트 경험을 제공합니다.' },
@@ -39,7 +38,6 @@ const Careers: React.FC = () => {
     const saved = localStorage.getItem('bbeoggugi_career_content');
     if (saved) {
         const parsed = JSON.parse(saved);
-        // Ensure default fallback if saved data is old
         if (!parsed.benefits) parsed.benefits = content.benefits;
         if (!parsed.positions) parsed.positions = content.positions;
         if (!parsed.coreValues) parsed.coreValues = content.coreValues;

@@ -9,7 +9,6 @@ const Layout: React.FC = () => {
     { name: 'ABOUT', path: '/about' },
     { name: 'SPACE', path: '/space' },
     { name: 'CONTACT', path: '/contact' },
-    { name: 'JOURNAL', path: '/journal' },
     { name: 'CAREER', path: '/career' },
   ];
 

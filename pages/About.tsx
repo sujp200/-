@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { team as initialTeam } from '../data';
-import { TeamMember } from '../types';
+import { team as initialTeam, channels as initialChannels } from '../data';
+import { TeamMember, Channel } from '../types';
 
 const About: React.FC = () => {
   const [team, setTeam] = useState<TeamMember[]>(initialTeam);
+  const [channels, setChannels] = useState<Channel[]>(initialChannels);
   const [content, setContent] = useState({
     mainTitle: 'Art, Made\nLivable',
     subtitle: 'BBEOGGUGI Studio',
@@ -22,6 +23,9 @@ const About: React.FC = () => {
     
     const savedTeam = localStorage.getItem('bbeoggugi_team');
     if (savedTeam) setTeam(JSON.parse(savedTeam));
+
+    const savedChannels = localStorage.getItem('bbeoggugi_journal_channels');
+    if (savedChannels) setChannels(JSON.parse(savedChannels));
   }, []);
 
   const subwayStations = [
@@ -31,8 +35,41 @@ const About: React.FC = () => {
   ];
 
   return (
-    <div className="px-8 max-w-[1600px] mx-auto overflow-hidden">
-      {/* Studio Philosophy Section */}
+    <div className="px-8 max-w-[1600px] mx-auto overflow-hidden relative">
+      {/* Social Icons at Top Right */}
+      <div className="absolute top-0 right-0 z-20 flex gap-4 pr-8 pt-10">
+        {channels.map((ch) => (
+          <a 
+            key={ch.id} 
+            href={ch.url} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="group block w-8 h-8 rounded-lg overflow-hidden transition-transform hover:scale-110 active:scale-95"
+          >
+            <div className="w-full h-full flex items-center justify-center relative bg-gray-50 border border-gray-100 shadow-sm overflow-hidden">
+                {/* Grayscale Base Image */}
+                <img 
+                  src={ch.thumbnail} 
+                  className={`w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 ${ch.id === 'insta' ? '' : 'absolute inset-0 z-0'}`}
+                  alt={ch.name}
+                />
+                
+                {/* Specific Colors for YouTube and Blog (Only on hover) */}
+                {ch.id === 'blog' && (
+                  <div className="absolute inset-0 bg-[#2DB400] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
+                    <span className="text-white text-base font-black">N</span>
+                  </div>
+                )}
+                {ch.id === 'yt' && (
+                  <div className="absolute inset-0 bg-[#FF0000] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
+                    <div className="w-0 h-0 border-y-[5px] border-y-transparent border-l-[8px] border-l-white ml-0.5"></div>
+                  </div>
+                )}
+            </div>
+          </a>
+        ))}
+      </div>
+
       <section className="flex flex-col lg:flex-row gap-24 mb-60 items-center lg:items-start pt-20">
         <div className="lg:w-1/2">
           <div className="aspect-[4/3] bg-gray-50 overflow-hidden relative shadow-2xl border border-gray-100 rounded-sm">
@@ -79,7 +116,6 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Team Section */}
       <section className="mb-60 max-w-lg">
         <div className="mb-16">
           <div className="flex items-center gap-6 mb-3">
@@ -102,7 +138,6 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Location Section */}
       <section className="mb-80">
         <div className="flex items-center gap-6 mb-16">
             <h3 className="eng-text-secondary text-[10px] uppercase font-bold text-[#111111] tracking-[0.4em]">LOCATION</h3>
@@ -158,29 +193,20 @@ const About: React.FC = () => {
                 <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '60px 60px' }}></div>
                 <div className="absolute inset-0 z-10 p-12">
                   <svg width="100%" height="100%" viewBox="0 0 1000 800">
-                    {/* Map Roads Visualization */}
                     <g stroke="black" strokeWidth="18" fill="none" opacity="0.06" strokeLinecap="round">
-                        <path d="M500,50 L500,750" /> {/* Main North-South */}
-                        <path d="M100,400 L900,400" /> {/* Main East-West */}
+                        <path d="M500,50 L500,750" />
+                        <path d="M100,400 L900,400" />
                     </g>
-                    
-                    {/* Subway Station Markers - Perfectly Centered */}
-                    
-                    {/* TOP: DDP (North) */}
                     <g transform="translate(500, 100)">
                        <circle cx="0" cy="0" r="10" stroke="black" strokeWidth="1" fill="white" />
                        <circle cx="0" cy="0" r="3" fill="#2ECC71" />
                        <text x="0" y="30" textAnchor="middle" className="eng-text text-[10px] font-bold fill-gray-400">DDP (N)</text>
                     </g>
-
-                    {/* BOTTOM: Dongdae-ipgu (South) */}
                     <g transform="translate(500, 700)">
                        <circle cx="0" cy="0" r="10" stroke="black" strokeWidth="1" fill="white" />
                        <circle cx="0" cy="0" r="3" fill="#FF8C00" />
                        <text x="0" y="30" textAnchor="middle" className="eng-text text-[10px] font-bold fill-gray-400">Dongguk Univ. (S)</text>
                     </g>
-
-                    {/* RIGHT: Cheonggu (East) */}
                     <g transform="translate(900, 400)">
                        <circle cx="0" cy="0" r="10" stroke="black" strokeWidth="1" fill="white" />
                        <circle cx="0" cy="0" r="3" fill="#A0522D" />
@@ -188,15 +214,10 @@ const About: React.FC = () => {
                     </g>
                   </svg>
                 </div>
-
-                {/* HQ PIN - Centered Overlay with fixed-size container */}
                 <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 z-30">
                     <div className="relative w-5 h-5 flex items-center justify-center">
-                        {/* Ping Effect - centered on the 20x20 container */}
                         <div className="absolute w-24 h-24 border border-black/[0.06] rounded-full animate-ping pointer-events-none"></div>
-                        {/* Main Dot */}
                         <div className="w-5 h-5 bg-black rounded-full relative z-50 border-[3.5px] border-white shadow-2xl"></div>
-                        {/* Label */}
                         <div className="absolute top-8 left-1/2 -translate-x-1/2 text-center pointer-events-none">
                            <span className="eng-text text-[10px] font-black uppercase tracking-[0.6em] text-black bg-white/90 px-4 py-1.5 backdrop-blur-md shadow-sm whitespace-nowrap border border-black/[0.03]">
                              BBEOGGUGI HQ
