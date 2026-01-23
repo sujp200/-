@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
-import { projects as initialProjects } from '../data';
-import { Project } from '../types';
+import { projects as initialProjects, team as initialTeam, channels as initialChannels } from '../data';
+import { Project, TeamMember, Channel } from '../types';
 
 interface Inquiry {
   id: number;
@@ -25,14 +24,14 @@ const Admin: React.FC = () => {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [activeTab, setActiveTab] = useState<'projects' | 'inquiries' | 'design' | 'settings'>('projects');
-  const [settingsSubTab, setSettingsSubTab] = useState<'about' | 'space' | 'contact' | 'career'>('about');
+  const [settingsSubTab, setSettingsSubTab] = useState<'about' | 'space' | 'contact' | 'career' | 'journal'>('about');
   
   const [projects, setProjects] = useState<Project[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [expandedInquiryId, setExpandedInquiryId] = useState<number | null>(null);
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   
-  // Selection States for Manage Mode
+  // Selection States for Manage Mode (Keep logic as requested)
   const [isProjectManageMode, setIsProjectManageMode] = useState(false);
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([]);
   const [isInquiryManageMode, setIsInquiryManageMode] = useState(false);
@@ -49,9 +48,11 @@ const Admin: React.FC = () => {
   });
   
   const [aboutContent, setAboutContent] = useState<any>({ mainTitle: '', subtitle: '', descKr1: '', descKr2: '', descEn: '', mainImage: '', addressKr: '', addressEn: '' });
+  const [team, setTeam] = useState<TeamMember[]>([]);
   const [spaceHeader, setSpaceHeader] = useState<any>({ title: '', subtitle: '' });
   const [contactSettings, setContactSettings] = useState<any>({ title: '', subtitle: '', visibleFields: [] });
   const [careerContent, setCareerContent] = useState<any>({ mainTitle: '', mainImage: '', descKr: '', descEn: '', coreValues: [], benefits: [], positions: [] });
+  const [journalChannels, setJournalChannels] = useState<Channel[]>([]);
 
   useEffect(() => {
     loadAllData();
@@ -72,6 +73,9 @@ const Admin: React.FC = () => {
       const savedAbout = localStorage.getItem('bbeoggugi_about');
       if (savedAbout) setAboutContent(JSON.parse(savedAbout));
 
+      const savedTeam = localStorage.getItem('bbeoggugi_team');
+      setTeam(savedTeam ? JSON.parse(savedTeam) : initialTeam);
+
       const savedSpace = localStorage.getItem('bbeoggugi_space_header');
       if (savedSpace) setSpaceHeader(JSON.parse(savedSpace));
 
@@ -80,6 +84,9 @@ const Admin: React.FC = () => {
 
       const savedCareer = localStorage.getItem('bbeoggugi_career_content');
       if (savedCareer) setCareerContent(JSON.parse(savedCareer));
+
+      const savedJournal = localStorage.getItem('bbeoggugi_journal_channels');
+      setJournalChannels(savedJournal ? JSON.parse(savedJournal) : initialChannels);
     } catch (e) { console.error("Load error:", e); }
   };
 
@@ -95,7 +102,7 @@ const Admin: React.FC = () => {
     } else { alert('비밀번호가 일치하지 않습니다.'); }
   };
 
-  // --- Deletion Logic ---
+  // --- Projects/Inquiries Deletion Logic (STAY UNCHANGED) ---
   const handleDeleteSelectedProjects = () => {
     if (selectedProjectIds.length === 0) return;
     if (window.confirm(`${selectedProjectIds.length}개의 프로젝트를 정말 삭제하시겠습니까?`)) {
@@ -118,7 +125,6 @@ const Admin: React.FC = () => {
     }
   };
 
-  // --- Selection Logic ---
   const toggleProjectSelection = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     setSelectedProjectIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
@@ -129,44 +135,23 @@ const Admin: React.FC = () => {
     setSelectedInquiryIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
-  // --- Project Add/Edit ---
-  const handleAddProject = () => {
-    const newId = `project-${Date.now()}`;
-    const newProj: Project = { 
-      id: newId, title: '새 프로젝트', titleEn: 'NEW PROJECT', 
-      mainImage: 'https://via.placeholder.com/800x1000?text=Upload+Image', 
-      images: [], floorPlans: [], 
-      info: { design: '', construction: '', photograph: '', year: '2024', site: 'Seoul', usage: 'Residential', area: '-', scope: 'Interior' }, 
-      descriptionKr: '', descriptionEn: '', logos: [] 
-    };
-    const next = [newProj, ...projects];
-    setProjects(next);
-    persistData('bbeoggugi_projects', next);
-    setEditingProjectId(newId);
-  };
-
-  const updateProjectField = (projectId: string, field: string, value: any, infoKey?: string) => {
-    const next = projects.map(p => {
-      if (p.id !== projectId) return p;
-      if (field === 'info_nested' && infoKey) return { ...p, info: { ...p.info, [infoKey]: value } };
-      return { ...p, [field]: value };
-    });
-    setProjects(next);
-    persistData('bbeoggugi_projects', next);
+  // --- File Upload Helper ---
+  const handleSingleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (base64: string) => void) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => callback(reader.result as string);
+    reader.readAsDataURL(file);
   };
 
   const handleProjectFileUpload = (e: React.ChangeEvent<HTMLInputElement>, projectId: string, type: 'main' | 'gallery') => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
-    const processFile = (file: File) => {
-      return new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.readAsDataURL(file);
-      });
-    };
-
+    const processFile = (file: File) => new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.readAsDataURL(file);
+    });
     Promise.all(Array.from(files).map(processFile)).then(base64s => {
       const next = projects.map(p => {
         if (p.id !== projectId) return p;
@@ -178,11 +163,22 @@ const Admin: React.FC = () => {
     });
   };
 
-  const removeProjectImage = (projectId: string, imgIdx: number) => {
+  // --- Project Update Helper ---
+  // Fix for error: Cannot find name 'updateProjectField'
+  const updateProjectField = (id: string, field: string, value: any, nestedKey?: string) => {
     const next = projects.map(p => {
-      if (p.id !== projectId) return p;
-      return { ...p, images: p.images.filter((_, i) => i !== imgIdx) };
+      if (p.id !== id) return p;
+      if (field === 'info_nested' && nestedKey) {
+        return { ...p, info: { ...p.info, [nestedKey]: value } };
+      }
+      return { ...p, [field]: value };
     });
+    setProjects(next);
+    persistData('bbeoggugi_projects', next);
+  };
+
+  const removeProjectImage = (projectId: string, imgIdx: number) => {
+    const next = projects.map(p => p.id === projectId ? { ...p, images: p.images.filter((_, i) => i !== imgIdx) } : p);
     setProjects(next);
     persistData('bbeoggugi_projects', next);
   };
@@ -206,39 +202,28 @@ const Admin: React.FC = () => {
     const next = projects.map(p => p.id === projectId ? { ...p, mainImage: imageUrl } : p);
     setProjects(next);
     persistData('bbeoggugi_projects', next);
-    alert('이 이미지가 프로젝트의 대표 이미지(Poster)로 설정되었습니다.');
+    alert('메인 포스터가 변경되었습니다.');
   };
 
-  // --- Design Settings ---
-  const handleFontUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setDesignSettings({ ...designSettings, useCustomFont: true, customFontBase64: reader.result, fontName: file.name });
-    };
-    reader.readAsDataURL(file);
+  // --- Career & About List Management ---
+  const addItem = (state: any, setState: any, key: string, newItem: any, storageKey: string) => {
+    const next = { ...state, [key]: [...(state[key] || []), newItem] };
+    setState(next);
+    persistData(storageKey, next);
   };
 
-  // --- Career Logic ---
-  const addCareerItem = (key: string, newItem: any) => {
-    const next = { ...careerContent, [key]: [...(careerContent[key] || []), newItem] };
-    setCareerContent(next);
-    persistData('bbeoggugi_career_content', next);
-  };
-
-  const updateCareerItem = (key: string, index: number, field: string, value: any) => {
-    const newList = [...(careerContent[key] || [])];
+  const updateItem = (state: any, setState: any, key: string, index: number, field: string, value: any, storageKey: string) => {
+    const newList = [...(state[key] || [])];
     newList[index] = { ...newList[index], [field]: value };
-    const next = { ...careerContent, [key]: newList };
-    setCareerContent(next);
-    persistData('bbeoggugi_career_content', next);
+    const next = { ...state, [key]: newList };
+    setState(next);
+    persistData(storageKey, next);
   };
 
-  const removeCareerItem = (key: string, index: number) => {
-    const next = { ...careerContent, [key]: careerContent[key].filter((_: any, i: number) => i !== index) };
-    setCareerContent(next);
-    persistData('bbeoggugi_career_content', next);
+  const removeItem = (state: any, setState: any, key: string, index: number, storageKey: string) => {
+    const next = { ...state, [key]: state[key].filter((_: any, i: number) => i !== index) };
+    setState(next);
+    persistData(storageKey, next);
   };
 
   if (!isAuthorized) {
@@ -279,15 +264,18 @@ const Admin: React.FC = () => {
                     ) : (
                       <>
                         <button onClick={() => setIsProjectManageMode(true)} className="text-[10px] font-black uppercase border border-black px-5 py-2 rounded-full tracking-widest hover:bg-black hover:text-white transition-all">Manage List</button>
-                        <button onClick={handleAddProject} className="bg-black text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-transform hover:scale-105">+ New Project</button>
+                        <button onClick={() => {
+                          const newId = `project-${Date.now()}`;
+                          const newProj: Project = { id: newId, title: '새 프로젝트', titleEn: 'NEW PROJECT', mainImage: 'https://via.placeholder.com/800x1000', images: [], floorPlans: [], info: { design: '', construction: '', photograph: '', year: '2024', site: 'Seoul', usage: 'Residential', area: '-', scope: 'Interior' }, descriptionKr: '', descriptionEn: '', logos: [] };
+                          const next = [newProj, ...projects]; setProjects(next); persistData('bbeoggugi_projects', next); setEditingProjectId(newId);
+                        }} className="bg-black text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">+ New Project</button>
                       </>
                     )}
                  </div>
                </div>
-               
                <div className="grid grid-cols-1 gap-4">
                  {projects.map((p) => (
-                   <div key={p.id} className={`border bg-white rounded-sm overflow-hidden shadow-sm transition-all ${editingProjectId === p.id ? 'ring-1 ring-black shadow-lg' : ''}`}>
+                   <div key={p.id} className={`border bg-white rounded-sm overflow-hidden shadow-sm ${editingProjectId === p.id ? 'ring-1 ring-black shadow-lg' : ''}`}>
                       <div className={`p-4 flex justify-between items-center bg-gray-50/30 transition-colors ${isProjectManageMode ? 'cursor-default' : 'cursor-pointer hover:bg-gray-50'}`} onClick={() => !isProjectManageMode && setEditingProjectId(editingProjectId === p.id ? null : p.id)}>
                         <div className="flex items-center gap-6">
                            {isProjectManageMode && (
@@ -295,17 +283,11 @@ const Admin: React.FC = () => {
                                  {selectedProjectIds.includes(p.id) && <div className="w-1.5 h-1.5 bg-white"></div>}
                               </div>
                            )}
-                           <img src={p.mainImage} className="w-10 h-14 object-cover border bg-gray-100" alt="" />
-                           <div className="flex flex-col">
-                             <span className="kor-bold text-sm">{p.title || 'Untitled Project'}</span>
-                             <span className="text-[9px] uppercase text-gray-400 tracking-widest">{p.titleEn}</span>
-                           </div>
+                           <img src={p.mainImage} className="w-10 h-14 object-cover border bg-gray-100" />
+                           <div className="flex flex-col"><span className="kor-bold text-sm">{p.title || 'Untitled'}</span><span className="text-[9px] uppercase text-gray-400">{p.titleEn}</span></div>
                         </div>
-                        {!isProjectManageMode && (
-                           <button onClick={(e) => { e.stopPropagation(); setEditingProjectId(editingProjectId === p.id ? null : p.id); }} className="text-[10px] font-bold border px-4 py-2 rounded-full uppercase tracking-widest hover:bg-black hover:text-white transition-colors">{editingProjectId === p.id ? 'Close' : 'Edit'}</button>
-                        )}
+                        {!isProjectManageMode && <button onClick={(e) => { e.stopPropagation(); setEditingProjectId(editingProjectId === p.id ? null : p.id); }} className="text-[10px] font-bold border px-4 py-2 rounded-full uppercase tracking-widest hover:bg-black hover:text-white">{editingProjectId === p.id ? 'Close' : 'Edit'}</button>}
                       </div>
-                      
                       {editingProjectId === p.id && !isProjectManageMode && (
                         <div className="p-8 space-y-12 animate-in slide-in-from-top-4 border-t">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
@@ -317,7 +299,7 @@ const Admin: React.FC = () => {
                                   <div>
                                     <label className="text-[8px] uppercase font-bold text-gray-300 block mb-3">Main Poster Image</label>
                                     <div className="flex items-center gap-6">
-                                       <img src={p.mainImage} className="w-20 h-28 object-cover border shadow-sm" alt="" />
+                                       <img src={p.mainImage} className="w-20 h-28 object-cover border shadow-sm" />
                                        <div className="flex-grow">
                                           <input type="file" id={`main-img-up-${p.id}`} className="hidden" accept="image/*" onChange={e => handleProjectFileUpload(e, p.id, 'main')} />
                                           <label htmlFor={`main-img-up-${p.id}`} className="block w-full border border-black/10 py-4 text-center cursor-pointer hover:bg-gray-50 text-[10px] font-black uppercase tracking-widest">Replace Poster</label>
@@ -339,13 +321,12 @@ const Admin: React.FC = () => {
                                 </div>
                              </div>
                           </div>
-
                           <div className="space-y-8 pt-8 border-t">
                              <label className="text-[10px] font-black uppercase text-gray-400 block tracking-[0.2em]">Gallery (Sortable Images)</label>
                              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                                 {p.images.map((img, imgIdx) => (
                                   <div key={imgIdx} className="relative group border bg-gray-50 aspect-[3/4] overflow-hidden">
-                                     <img src={img} className="w-full h-full object-cover" alt="" />
+                                     <img src={img} className="w-full h-full object-cover" />
                                      <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-2 transition-opacity p-2 text-center">
                                         <div className="flex gap-2">
                                            <button onClick={(e) => reorderImage(e, p.id, imgIdx, 'left')} className="bg-white/10 text-white w-6 h-6 border rounded-full hover:bg-white hover:text-black">←</button>
@@ -360,7 +341,7 @@ const Admin: React.FC = () => {
                                 <label htmlFor={`gallery-up-${p.id}`} className="border-2 border-dashed flex flex-col items-center justify-center text-[10px] text-gray-300 hover:text-black hover:border-black transition-all aspect-[3/4] font-black uppercase cursor-pointer">+ Add Images</label>
                              </div>
                           </div>
-                          <button onClick={() => { setEditingProjectId(null); alert('프로젝트 내용이 저장되었습니다.'); }} className="w-full bg-black text-white py-6 font-black uppercase text-[11px] tracking-[0.5em] shadow-xl">Close Editor</button>
+                          <button onClick={() => { setEditingProjectId(null); alert('저장되었습니다.'); }} className="w-full bg-black text-white py-6 font-black uppercase text-[11px] tracking-[0.5em] shadow-xl">Close Editor</button>
                         </div>
                       )}
                    </div>
@@ -384,14 +365,10 @@ const Admin: React.FC = () => {
                     )}
                  </div>
                </div>
-               
                <div className="border rounded-sm overflow-hidden bg-white shadow-sm">
                   <table className="w-full text-left text-xs">
                      <thead className="bg-gray-50 uppercase text-gray-400 font-black border-b">
-                       <tr>
-                         {isInquiryManageMode && <th className="p-4 w-12 text-center">Sel</th>}
-                         <th className="p-4">Date</th><th className="p-4">Client</th><th className="p-4">Type</th>
-                       </tr>
+                       <tr>{isInquiryManageMode && <th className="p-4 w-12 text-center">Sel</th>}<th className="p-4">Date</th><th className="p-4">Client</th><th className="p-4">Type</th></tr>
                      </thead>
                      <tbody className="divide-y">
                        {inquiries.map(inq => (
@@ -443,78 +420,176 @@ const Admin: React.FC = () => {
                   </div>
                   <div className="space-y-8">
                     <label className="text-[10px] font-black uppercase text-gray-400 block tracking-widest">Brand Font Upload</label>
-                    <input type="file" id="font-up" className="hidden" accept=".ttf,.woff,.woff2" onChange={handleFontUpload} />
-                    <label htmlFor="font-up" className="block border-2 border-dashed p-10 text-center cursor-pointer hover:border-black transition-colors bg-gray-50/30">
-                        <span className="block text-[11px] font-black uppercase tracking-widest text-gray-400">
-                          {designSettings.fontName || 'Select Font File (.ttf/.woff)'}
-                        </span>
+                    <input type="file" id="font-up" className="hidden" accept=".ttf,.woff,.woff2" onChange={(e) => handleSingleFileUpload(e, base64 => setDesignSettings({...designSettings, useCustomFont:true, customFontBase64:base64, fontName:e.target.files?.[0].name}))} />
+                    <label htmlFor="font-up" className="block border-2 border-dashed p-10 text-center cursor-pointer hover:border-black bg-gray-50/30">
+                        <span className="block text-[11px] font-black uppercase tracking-widest text-gray-400">{designSettings.fontName || 'Select Font File'}</span>
                     </label>
                   </div>
                </div>
-               <button onClick={() => { persistData('admin_design_settings', designSettings); alert('디자인 설정이 저장되었습니다. 새로고침 후 반영됩니다.'); window.location.reload(); }} className="w-full bg-black text-white py-6 text-[11px] font-black uppercase tracking-[0.5em] shadow-2xl hover:bg-gray-800">Apply System Update</button>
+               <button onClick={() => { persistData('admin_design_settings', designSettings); alert('저장되었습니다.'); window.location.reload(); }} className="w-full bg-black text-white py-6 text-[11px] font-black uppercase tracking-[0.5em] shadow-2xl">Apply System Update</button>
             </div>
           )}
 
           {activeTab === 'settings' && (
             <div className="space-y-12">
                <div className="flex gap-10 border-b pb-6 overflow-x-auto scrollbar-none">
-                  {(['about', 'space', 'contact', 'career'] as const).map(sub => (
+                  {(['about', 'space', 'contact', 'career', 'journal'] as const).map(sub => (
                     <button key={sub} onClick={() => setSettingsSubTab(sub)} className={`text-[10px] font-black uppercase tracking-widest transition-all ${settingsSubTab === sub ? 'text-black border-b-2 border-black pb-6 -mb-6.5' : 'text-gray-300 hover:text-gray-500'}`}>{sub}</button>
                   ))}
                </div>
 
                <div className="animate-in fade-in duration-500 pt-6">
                   {settingsSubTab === 'about' && (
-                    <div className="space-y-12">
+                    <div className="space-y-16">
                        <div className="grid grid-cols-2 gap-12">
-                          <div className="space-y-2 col-span-2 md:col-span-1"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Main Philosophy Title</label><textarea value={aboutContent.mainTitle} onChange={e => setAboutContent({...aboutContent, mainTitle: e.target.value})} className="w-full border-b p-3 text-2xl kor-bold outline-none focus:border-black bg-transparent" rows={2} /></div>
-                          <div className="space-y-2 col-span-2 md:col-span-1"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Brand Subtitle</label><input value={aboutContent.subtitle} onChange={e => setAboutContent({...aboutContent, subtitle: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
-                          <div className="space-y-2 col-span-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Office HQ Address (KR)</label><input value={aboutContent.addressKr} onChange={e => setAboutContent({...aboutContent, addressKr: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
+                          <div className="col-span-2 md:col-span-1 space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Philosophy Title</label><textarea value={aboutContent.mainTitle} onChange={e => setAboutContent({...aboutContent, mainTitle: e.target.value})} className="w-full border-b p-3 text-2xl kor-bold bg-transparent outline-none focus:border-black" rows={2} /></div>
+                          <div className="col-span-2 md:col-span-1 space-y-2">
+                             <label className="text-[9px] font-black text-gray-400 uppercase">Main Photo</label>
+                             <div className="flex gap-6 items-center">
+                                <img src={aboutContent.mainImage} className="w-20 h-20 object-cover border" />
+                                <input type="file" id="about-img" className="hidden" onChange={e => handleSingleFileUpload(e, base64 => setAboutContent({...aboutContent, mainImage: base64}))} />
+                                <label htmlFor="about-img" className="text-[9px] font-black border p-4 cursor-pointer hover:bg-black hover:text-white transition-all uppercase">Upload New Photo</label>
+                             </div>
+                          </div>
                        </div>
-                       <button onClick={() => { persistData('bbeoggugi_about', aboutContent); alert('About 정보가 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px] tracking-widest">Save Settings</button>
+                       
+                       <div className="space-y-10">
+                          <h4 className="text-[10px] font-black uppercase border-l-4 border-black pl-4">Team Members</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             {team.map((m, i) => (
+                               <div key={i} className="flex gap-4 items-center border p-4 bg-white relative">
+                                  <input value={m.name} onChange={e => { const next = [...team]; next[i].name = e.target.value; setTeam(next); }} className="kor-bold text-sm border-b w-1/3 outline-none" placeholder="Name" />
+                                  <input value={m.role} onChange={e => { const next = [...team]; next[i].role = e.target.value; setTeam(next); }} className="text-xs uppercase text-gray-400 border-b w-1/2 outline-none" placeholder="Role" />
+                                  <button onClick={() => setTeam(team.filter((_, idx) => idx !== i))} className="text-red-500 text-[9px] font-bold">Del</button>
+                               </div>
+                             ))}
+                             <button onClick={() => setTeam([...team, {id: Date.now().toString(), name:'', role:'', avatar:''}])} className="border-2 border-dashed py-4 text-[10px] font-black uppercase text-gray-300 hover:text-black">+ Add Member</button>
+                          </div>
+                       </div>
+
+                       <div className="space-y-6">
+                          <h4 className="text-[10px] font-black uppercase border-l-4 border-black pl-4">Location Info</h4>
+                          <input value={aboutContent.addressKr} onChange={e => setAboutContent({...aboutContent, addressKr: e.target.value})} className="w-full border-b py-3 text-lg kor-bold outline-none" placeholder="Address (KR)" />
+                       </div>
+                       <button onClick={() => { persistData('bbeoggugi_about', aboutContent); persistData('bbeoggugi_team', team); alert('About 설정이 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px]">Save About Settings</button>
                     </div>
                   )}
 
                   {settingsSubTab === 'space' && (
                     <div className="space-y-12">
-                       <div className="grid grid-cols-2 gap-12">
-                          <div className="space-y-2 col-span-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Space Archive Title</label><input value={spaceHeader.title} onChange={e => setSpaceHeader({...spaceHeader, title: e.target.value})} className="w-full border-b p-3 text-2xl kor-bold outline-none focus:border-black bg-transparent" /></div>
-                          <div className="space-y-2 col-span-2"><label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Space Archive Subtitle</label><input value={spaceHeader.subtitle} onChange={e => setSpaceHeader({...spaceHeader, subtitle: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
+                       <div className="grid grid-cols-1 gap-12">
+                          <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase">Archive Title</label><input value={spaceHeader.title} onChange={e => setSpaceHeader({...spaceHeader, title: e.target.value})} className="w-full border-b p-3 text-2xl kor-bold outline-none focus:border-black bg-transparent" /></div>
+                          <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase">Archive Subtitle</label><input value={spaceHeader.subtitle} onChange={e => setSpaceHeader({...spaceHeader, subtitle: e.target.value})} className="w-full border-b p-3 text-sm outline-none focus:border-black bg-transparent" /></div>
                        </div>
-                       <button onClick={() => { persistData('bbeoggugi_space_header', spaceHeader); alert('Space 헤더 설정이 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px] tracking-widest">Save Settings</button>
-                    </div>
-                  )}
-
-                  {settingsSubTab === 'career' && (
-                    <div className="space-y-16">
-                       <div className="space-y-8 border-b pb-12">
-                          <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Careers Page Title</label>
-                          <textarea value={careerContent.mainTitle} onChange={e => setCareerContent({...careerContent, mainTitle: e.target.value})} className="w-full border-b p-3 text-xl kor-bold bg-transparent outline-none focus:border-black" rows={2} />
-                       </div>
-                       <div className="space-y-10">
-                          <h4 className="text-xs font-black uppercase tracking-[0.2em]">Positions List</h4>
-                          {careerContent.positions?.map((pos:any, i:number) => (
-                             <div key={i} className="border p-8 space-y-6 bg-white relative shadow-sm">
-                                <button onClick={() => removeCareerItem('positions', i)} className="absolute top-6 right-6 text-red-500 font-black text-[9px] uppercase">Remove</button>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                   <input className="w-full border-b text-xl font-bold outline-none focus:border-black bg-transparent" placeholder="Job Title" value={pos.title} onChange={e => updateCareerItem('positions', i, 'title', e.target.value)} />
-                                   <input className="w-full border-b text-sm outline-none focus:border-black bg-transparent" placeholder="Requirement" value={pos.subTitle} onChange={e => updateCareerItem('positions', i, 'subTitle', e.target.value)} />
-                                   <input className="w-full border-b text-sm outline-none focus:border-black bg-transparent" placeholder="Employment Type" value={pos.type} onChange={e => updateCareerItem('positions', i, 'type', e.target.value)} />
-                                </div>
-                                <textarea className="w-full border p-4 text-[13px] leading-relaxed outline-none focus:border-black bg-transparent" placeholder="Job Description" value={pos.desc} onChange={updateCareerItem.bind(null, 'positions', i, 'desc')} rows={3} />
-                             </div>
-                          ))}
-                          <button onClick={() => addCareerItem('positions', {title:'', subTitle:'', type:'', desc:''})} className="w-full border-2 border-dashed py-8 text-[11px] font-black uppercase text-gray-300 hover:text-black">+ Add New Position</button>
-                       </div>
-                       <button onClick={() => { persistData('bbeoggugi_career_content', careerContent); alert('채용 정보가 최종 저장되었습니다.'); }} className="w-full bg-black text-white py-6 font-black uppercase text-[11px] tracking-[0.4em]">Final Save Career Data</button>
+                       <button onClick={() => { persistData('bbeoggugi_space_header', spaceHeader); alert('저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px]">Save Space Settings</button>
                     </div>
                   )}
 
                   {settingsSubTab === 'contact' && (
                     <div className="space-y-12">
-                       <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Inquiry Form Title</label>
-                       <input value={contactSettings.title} onChange={e => setContactSettings({...contactSettings, title: e.target.value})} className="w-full border-b p-3 text-xl outline-none focus:border-black bg-transparent" />
-                       <button onClick={() => { persistData('bbeoggugi_contact_settings', contactSettings); alert('Contact 헤더 정보가 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px] tracking-widest">Save Settings</button>
+                       <div className="space-y-4"><label className="text-[9px] font-black text-gray-400 uppercase">Visible Form Fields (노출 여부)</label>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                             {['address', 'size', 'schedule', 'budget', 'referral'].map(field => (
+                               <label key={field} className="flex items-center gap-3 border p-4 cursor-pointer hover:bg-gray-50">
+                                  <input type="checkbox" checked={contactSettings.visibleFields.includes(field)} onChange={e => {
+                                    const next = e.target.checked ? [...contactSettings.visibleFields, field] : contactSettings.visibleFields.filter((f:string) => f !== field);
+                                    setContactSettings({...contactSettings, visibleFields: next});
+                                  }} className="w-4 h-4 accent-black" />
+                                  <span className="text-[11px] font-bold uppercase">{field}</span>
+                               </label>
+                             ))}
+                          </div>
+                       </div>
+                       <button onClick={() => { persistData('bbeoggugi_contact_settings', contactSettings); alert('저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px]">Save Contact Settings</button>
+                    </div>
+                  )}
+
+                  {settingsSubTab === 'career' && (
+                    <div className="space-y-16">
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                          <div className="space-y-2"><label className="text-[9px] font-black text-gray-400 uppercase">Main Title</label><textarea value={careerContent.mainTitle} onChange={e => setCareerContent({...careerContent, mainTitle: e.target.value})} className="w-full border-b p-3 text-xl kor-bold bg-transparent outline-none focus:border-black" rows={2} /></div>
+                          <div className="space-y-2">
+                             <label className="text-[9px] font-black text-gray-400 uppercase">Representative Photo</label>
+                             <div className="flex gap-6 items-center">
+                                <img src={careerContent.mainImage} className="w-20 h-28 object-cover border" />
+                                <input type="file" id="career-img" className="hidden" onChange={e => handleSingleFileUpload(e, base64 => setCareerContent({...careerContent, mainImage: base64}))} />
+                                <label htmlFor="career-img" className="text-[9px] font-black border p-4 cursor-pointer hover:bg-black hover:text-white transition-all uppercase">Upload New Photo</label>
+                             </div>
+                          </div>
+                       </div>
+
+                       <div className="space-y-10">
+                          <h4 className="text-[10px] font-black uppercase border-l-4 border-black pl-4">Core Values (인재상)</h4>
+                          <div className="space-y-4">
+                             {careerContent.coreValues?.map((v:any, i:number) => (
+                               <div key={i} className="border p-6 bg-white space-y-3 relative shadow-sm">
+                                  <button onClick={() => removeItem(careerContent, setCareerContent, 'coreValues', i, 'bbeoggugi_career_content')} className="absolute top-4 right-4 text-red-500 text-[9px] font-bold">Remove</button>
+                                  <input className="w-full border-b text-sm font-bold outline-none" value={v.kr} onChange={e => updateItem(careerContent, setCareerContent, 'coreValues', i, 'kr', e.target.value, 'bbeoggugi_career_content')} placeholder="Value Title" />
+                                  <textarea className="w-full text-xs text-gray-500 outline-none" value={v.desc} onChange={e => updateItem(careerContent, setCareerContent, 'coreValues', i, 'desc', e.target.value, 'bbeoggugi_career_content')} placeholder="Description" rows={2} />
+                               </div>
+                             ))}
+                             <button onClick={() => addItem(careerContent, setCareerContent, 'coreValues', {kr:'', desc:''}, 'bbeoggugi_career_content')} className="w-full border-2 border-dashed py-4 text-[10px] font-black uppercase text-gray-300 hover:text-black">+ Add Core Value</button>
+                          </div>
+                       </div>
+
+                       <div className="space-y-10">
+                          <h4 className="text-[10px] font-black uppercase border-l-4 border-black pl-4">Benefits (복지 혜택)</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                             {careerContent.benefits?.map((b:any, i:number) => (
+                               <div key={i} className="border p-6 bg-white space-y-2 relative">
+                                  <button onClick={() => removeItem(careerContent, setCareerContent, 'benefits', i, 'bbeoggugi_career_content')} className="absolute top-4 right-4 text-red-500 text-[8px] font-bold">Del</button>
+                                  <input className="w-full border-b text-xs font-bold outline-none" value={b.kr} onChange={e => updateItem(careerContent, setCareerContent, 'benefits', i, 'kr', e.target.value, 'bbeoggugi_career_content')} placeholder="Benefit Name" />
+                                  <input className="w-full text-[10px] text-gray-400 outline-none" value={b.desc} onChange={e => updateItem(careerContent, setCareerContent, 'benefits', i, 'desc', e.target.value, 'bbeoggugi_career_content')} placeholder="Sub description" />
+                               </div>
+                             ))}
+                             <button onClick={() => addItem(careerContent, setCareerContent, 'benefits', {kr:'', desc:''}, 'bbeoggugi_career_content')} className="border-2 border-dashed py-10 text-[10px] font-black uppercase text-gray-300 hover:text-black">+ Add Benefit</button>
+                          </div>
+                       </div>
+
+                       <div className="space-y-10">
+                          <h4 className="text-[10px] font-black uppercase border-l-4 border-black pl-4">Open Positions (채용 공고)</h4>
+                          <div className="space-y-4">
+                             {careerContent.positions?.map((pos:any, i:number) => (
+                               <div key={i} className="border p-8 bg-white space-y-6 relative shadow-sm">
+                                  <button onClick={() => removeItem(careerContent, setCareerContent, 'positions', i, 'bbeoggugi_career_content')} className="absolute top-6 right-6 text-red-500 font-black text-[9px] uppercase">Remove</button>
+                                  <div className="grid grid-cols-3 gap-6">
+                                     <input className="border-b text-xl font-bold outline-none" value={pos.title} onChange={e => updateItem(careerContent, setCareerContent, 'positions', i, 'title', e.target.value, 'bbeoggugi_career_content')} placeholder="Job Title" />
+                                     <input className="border-b text-sm outline-none" value={pos.subTitle} onChange={e => updateItem(careerContent, setCareerContent, 'positions', i, 'subTitle', e.target.value, 'bbeoggugi_career_content')} placeholder="Seniority" />
+                                     <input className="border-b text-sm outline-none" value={pos.type} onChange={e => updateItem(careerContent, setCareerContent, 'positions', i, 'type', e.target.value, 'bbeoggugi_career_content')} placeholder="Type" />
+                                  </div>
+                                  <textarea className="w-full border p-4 text-xs outline-none focus:border-black" value={pos.desc} onChange={e => updateItem(careerContent, setCareerContent, 'positions', i, 'desc', e.target.value, 'bbeoggugi_career_content')} rows={3} placeholder="Job Description" />
+                               </div>
+                             ))}
+                             <button onClick={() => addItem(careerContent, setCareerContent, 'positions', {title:'', subTitle:'', type:'', desc:''}, 'bbeoggugi_career_content')} className="w-full border-2 border-dashed py-10 text-[10px] font-black uppercase text-gray-300 hover:text-black">+ Add Position</button>
+                          </div>
+                       </div>
+                       <button onClick={() => { persistData('bbeoggugi_career_content', careerContent); alert('Career 설정이 최종 저장되었습니다.'); }} className="w-full bg-black text-white py-6 font-black uppercase text-[11px] tracking-[0.4em]">Final Save Career Data</button>
+                    </div>
+                  )}
+
+                  {settingsSubTab === 'journal' && (
+                    <div className="space-y-12">
+                       <h4 className="text-[10px] font-black uppercase border-l-4 border-black pl-4">Journal Channels (Links & Thumbnails)</h4>
+                       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                          {journalChannels.map((ch, i) => (
+                            <div key={ch.id} className="border p-8 bg-white space-y-6 shadow-sm">
+                               <div className="flex justify-between items-center"><span className="eng-text text-sm font-black uppercase tracking-widest">{ch.name}</span><div className={`w-2 h-2 rounded-full ${ch.id === 'blog' ? 'bg-[#2DB400]' : ch.id === 'yt' ? 'bg-[#FF0000]' : 'bg-black'}`}></div></div>
+                               <div className="space-y-4">
+                                  <div className="aspect-square bg-gray-50 border relative overflow-hidden">
+                                     <img src={ch.thumbnail} className="w-full h-full object-cover" />
+                                     <input type="file" id={`ch-thumb-${ch.id}`} className="hidden" onChange={e => handleSingleFileUpload(e, base64 => {
+                                       const next = [...journalChannels]; next[i].thumbnail = base64; setJournalChannels(next);
+                                     })} />
+                                     <label htmlFor={`ch-thumb-${ch.id}`} className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center text-white text-[8px] font-black uppercase cursor-pointer transition-opacity">Change Thumbnail</label>
+                                  </div>
+                                  <input className="w-full border-b py-2 text-[10px] outline-none" value={ch.url} onChange={e => {
+                                    const next = [...journalChannels]; next[i].url = e.target.value; setJournalChannels(next);
+                                  }} placeholder="Channel URL" />
+                               </div>
+                            </div>
+                          ))}
+                       </div>
+                       <button onClick={() => { persistData('bbeoggugi_journal_channels', journalChannels); alert('Journal 채널 정보가 저장되었습니다.'); }} className="w-full bg-black text-white py-5 font-black uppercase text-[10px]">Save Journal Settings</button>
                     </div>
                   )}
                </div>
